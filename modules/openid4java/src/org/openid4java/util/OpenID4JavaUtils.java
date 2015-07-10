@@ -11,6 +11,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.OpenIDException;
+import org.openid4java.association.Association;
 
 /**
  * Load properties from classpath:<code>org.openid4java.util.openid4java-default.properties</code>,
@@ -25,6 +26,9 @@ public class OpenID4JavaUtils
     private static Log _log = LogFactory.getLog(OpenID4JavaUtils.class);
 
     private static final Properties _appProperties;
+
+    //When association is generated,  It would be set as a thread local variable.
+    private static ThreadLocal<Association> threadLocalAssociation = new ThreadLocal<Association> ();
 
     static
     {
@@ -85,5 +89,19 @@ public class OpenID4JavaUtils
 
     private OpenID4JavaUtils()
     {
+    }
+
+    public static Association getThreadLocalAssociation() {
+        Association association = threadLocalAssociation.get();
+        threadLocalAssociation.remove();
+        return association;
+    }
+
+    public static void setThreadLocalAssociation(Association association) {
+        threadLocalAssociation.set(association);
+    }
+
+    public static void clearThreadLocalAssociation(){
+        threadLocalAssociation.remove();
     }
 }

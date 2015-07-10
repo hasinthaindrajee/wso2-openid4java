@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.util.OpenID4JavaUtils;
 
 /**
  * Manages OpenID communications with an OpenID Relying Party (Consumer).
@@ -833,11 +834,23 @@ public class ServerManager
     {
         String handle = authSuccess.getHandle();
 
-        // try private associations first, then shared
-        Association assoc = _privateAssociations.load(handle);
+        Association assoc = null;
+        try{
+            // First try in thread local
+            assoc =  OpenID4JavaUtils.getThreadLocalAssociation();
+        } finally {
+            // Clear thread local
+            OpenID4JavaUtils.clearThreadLocalAssociation();
+        }
 
-        if (assoc == null)
+        // try shared associations, then private
+        if (assoc == null) {
             assoc = _sharedAssociations.load(handle);
+        }
+
+        if (assoc == null) {
+            assoc = _privateAssociations.load(handle);
+        }
 
         if (assoc == null) throw new ServerException(
                 "No association found for handle: " + handle);
