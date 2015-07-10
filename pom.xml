@@ -11,7 +11,7 @@
   <groupId>org.openid4java</groupId>
   <artifactId>openid4java-nodeps</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.6-wso2v3</version>
+  <version>0.9.6-wso2v4-SNAPSHOT</version>
   <name>OpenID4Java no dependencies</name>
 
   <properties>
