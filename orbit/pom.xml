@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.openid4java</groupId>
             <artifactId>openid4java-nodeps</artifactId>
-            <version>0.9.6-wso2v3</version>
+            <version>0.9.6-wso2v4-SNAPSHOT</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -181,7 +181,7 @@
         <nekohtml.version>1.9.7</nekohtml.version>
         <openxri.version>1.2.0</openxri.version>
 	<!-- openid4java -->
-	<orbit.version.openid4java>0.9.6.wso2v3</orbit.version.openid4java>
+	<orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
     </properties>
 
 </project>
