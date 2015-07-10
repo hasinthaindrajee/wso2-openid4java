@@ -25,4 +25,4 @@ release.properties
 hs_err_pid*
 
 # Ignore test log
-build/test/testLog.txt
+modules/openid4java/build/test/testLog.txt
