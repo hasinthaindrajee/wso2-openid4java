@@ -1,4 +1,17 @@
+# Ignore everything in this directory
+target
 *.class
+.classpath
+.settings
+.project
+*.iml
+*.iws
+*.ipr
+.idea
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+release.properties
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
