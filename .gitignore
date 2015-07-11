@@ -1,4 +1,17 @@
+# Ignore everything in this directory
+target
 *.class
+.classpath
+.settings
+.project
+*.iml
+*.iws
+*.ipr
+.idea
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+release.properties
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -10,3 +23,6 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Ignore test log
+modules/openid4java/build/test/testLog.txt
