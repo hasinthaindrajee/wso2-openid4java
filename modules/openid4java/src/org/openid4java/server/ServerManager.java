@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.util.OpenID4JavaUtils;
 
 /**
  * Manages OpenID communications with an OpenID Relying Party (Consumer).
@@ -833,11 +834,23 @@ public class ServerManager
     {
         String handle = authSuccess.getHandle();
 
-        // try shared associations first, then private
-        Association assoc = _sharedAssociations.load(handle);
+        Association assoc = null;
+        try{
+            // First try in thread local
+            assoc =  OpenID4JavaUtils.getThreadLocalAssociation();
+        } finally {
+            // Clear thread local
+            OpenID4JavaUtils.clearThreadLocalAssociation();
+        }
 
-        if (assoc == null)
+        // try shared associations, then private
+        if (assoc == null) {
+            assoc = _sharedAssociations.load(handle);
+        }
+
+        if (assoc == null) {
             assoc = _privateAssociations.load(handle);
+        }
 
         if (assoc == null) throw new ServerException(
                 "No association found for handle: " + handle);
@@ -858,6 +871,7 @@ public class ServerManager
         _log.info("Processing verification request...");
 
         boolean isVersion2 = true;
+        String sigMod = null;
 
         try
         {
@@ -871,15 +885,17 @@ public class ServerManager
             Association assoc = _privateAssociations.load(handle);
             if (assoc != null) // verify the signature
             {
-                _log.info("Loaded private association; handle: " + handle);
-
-                verified = assoc.verifySignature(
-                        vrfyReq.getSignedText(),
-                        vrfyReq.getSignature());
+                if(DEBUG) {
+                    _log.debug("Loaded private association; handle: " + handle);
+                }
+                sigMod = vrfyReq.getSignature().replaceAll("\\s", "+");
+                verified = assoc.verifySignature(vrfyReq.getSignedText(), sigMod);
 
                 // remove the association so that the request
                 // cannot be verified more than once
                 _privateAssociations.remove(handle);
+            } else {
+                _log.error("No association loaded from the database, handle: " + handle);
             }
 
             VerifyResponse vrfyResp =
@@ -892,18 +908,22 @@ public class ServerManager
                 String invalidateHandle = vrfyReq.getInvalidateHandle();
                 if (invalidateHandle != null &&
                         _sharedAssociations.load(invalidateHandle) == null) {
-                    _log.info("Confirming shared association invalidate handle: "
-                            + invalidateHandle);
+                    if (DEBUG) {
+                        _log.debug("Confirming shared association invalidate handle: " + invalidateHandle);
+                    }
 
                     vrfyResp.setInvalidateHandle(invalidateHandle);
                 }
             }
-            else
-                _log.error("Signature verification failed, handle: " + handle);
+            else {
+                _log.error("Signature verification failed. handle : " + handle +
+                        " , signed text : " + vrfyReq.getSignedText() +
+                        " , signature : " + sigMod);
+            }
 
-
-            _log.info("Responding with " + (verified? "positive" : "negative")
-                      + " verification response");
+            if(DEBUG) {
+                _log.debug("Responding with " + (verified ? "positive" : "negative") + " verification response");
+            }
 
             return vrfyResp;
         }
