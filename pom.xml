@@ -14,7 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -29,15 +30,8 @@
     <version>0.9.6-wso2v4-SNAPSHOT</version>
     <name>OpenID4Java Parent</name>
     <description>
-         OpenID4Java Parent.
+        OpenID4Java Parent.
     </description>
-
-    <scm>
-        <connection>scm:svn:http://openid4java.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:https://openid4java.googlecode.com/svn/trunk/</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://openid4java.googlecode.com/svn/trunk/</url>
-    </scm>
 
     <scm>
         <url>https://github.com/wso2/wso2-openid4java.git</url>
@@ -258,13 +252,13 @@
         <nekohtml.version>1.9.7</nekohtml.version>
         <openxri.version>1.2.0</openxri.version>
 
-	<openid4java.version>0.9.6-wso2v4-SNAPSHOT</openid4java.version>
-	<orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
+        <openid4java.version>0.9.6-wso2v4-SNAPSHOT</openid4java.version>
+        <orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
 
-	<encoding>UTF-8</encoding>
-	<jetty.version>6.0.2</jetty.version>
-	<test.data.src>${test.data}</test.data.src>
-	<test.data.build>${basedir}/target/test-data</test.data.build>
+        <encoding>UTF-8</encoding>
+        <jetty.version>6.0.2</jetty.version>
+        <test.data.src>${test.data}</test.data.src>
+        <test.data.build>${basedir}/target/test-data</test.data.build>
     </properties>
 
     <build>
