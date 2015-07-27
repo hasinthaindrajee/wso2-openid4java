@@ -5,13 +5,12 @@
     <parent>
         <groupId>org.wso2.org.openid4java</groupId>
         <artifactId>openid4java-nodeps</artifactId>
-        <version>0.9.6-wso2v4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>0.9.6-wso2v1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>openid4java-parent</artifactId>
-    <version>0.9.6-wso2v4-SNAPSHOT</version>
+    <version>0.9.6-wso2v1</version>
     <packaging>pom</packaging>
 
     <modules>
