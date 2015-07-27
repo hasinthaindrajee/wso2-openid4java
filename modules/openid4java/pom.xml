@@ -14,13 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.openid4java</groupId>
         <artifactId>wso2.openid4java-nodeps</artifactId>
-        <version>0.9.6-wso2v4-SNAPSHOT</version>
+        <version>0.9.6-wso2v4</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -31,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>openid4java-nodeps</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.6-wso2v4-SNAPSHOT</version>
+    <version>0.9.6-wso2v4</version>
     <name>OpenID4Java no dependencies</name>
 
     <properties>
@@ -122,12 +121,12 @@
                         <phase>process-test-resources</phase>
                         <configuration>
                             <tasks unless="maven.test.skip">
-                                <echo message="To skip me, just call mvn -Dmaven.test.skip=true"/>
-                                <delete dir="${test.data.build}"/>
+                                <echo message="To skip me, just call mvn -Dmaven.test.skip=true" />
+                                <delete dir="${test.data.build}" />
                                 <copy todir="${test.data.build}">
-                                    <fileset dir="${test.data.src}"/>
+                                    <fileset dir="${test.data.src}" />
                                 </copy>
-                                <replace token="SERVLET_PORT" value="${test.servlet.port}" dir="${test.data.build}"/>
+                                <replace token="SERVLET_PORT" value="${test.servlet.port}" dir="${test.data.build}" />
                             </tasks>
                         </configuration>
                         <goals>
