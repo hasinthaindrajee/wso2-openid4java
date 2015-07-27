@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -236,9 +235,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.openid4java</groupId>
+                <groupId>org.wso2.org.openid4java</groupId>
                 <artifactId>openid4java-nodeps</artifactId>
-                <version>${openid4java.version}</version>
+                <version>${openid4java.wso2.version}</version>
                 <optional>true</optional>
                 <exclusions>
                     <exclusion>
@@ -262,7 +261,7 @@
     <properties>
         <nekohtml.version>1.9.10</nekohtml.version>
         <openxri.version>1.2.0</openxri.version>
-        <openid4java.version>0.9.6-wso2v4-SNAPSHOT</openid4java.version>
+        <openid4java.wso2.version>0.9.6-wso2v4-SNAPSHOT</openid4java.wso2.version>
         <orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
         <encoding>UTF-8</encoding>
         <jetty.version>6.0.2</jetty.version>
