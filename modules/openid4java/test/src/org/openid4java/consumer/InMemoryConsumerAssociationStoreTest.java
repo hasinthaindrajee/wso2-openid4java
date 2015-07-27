@@ -10,28 +10,23 @@ import junit.framework.TestSuite;
 /**
  * @author Marius Scurtescu
  */
-public class InMemoryConsumerAssociationStoreTest extends ConsumerAssociationStoreTest
-{
-    public InMemoryConsumerAssociationStoreTest(String name)
-    {
+public class InMemoryConsumerAssociationStoreTest extends ConsumerAssociationStoreTest {
+    public InMemoryConsumerAssociationStoreTest(String name) {
         super(name);
     }
 
-    protected ConsumerAssociationStore createStore()
-    {
+    public static Test suite() {
+        return new TestSuite(InMemoryConsumerAssociationStoreTest.class);
+    }
+
+    protected ConsumerAssociationStore createStore() {
         return new InMemoryConsumerAssociationStore();
     }
 
-    public void testCleanup() throws InterruptedException
-    {
+    public void testCleanup() throws InterruptedException {
         super.testCleanup();
 
         InMemoryConsumerAssociationStore inMemoryAssociationStore = (InMemoryConsumerAssociationStore) _associationStore;
         assertEquals(1, inMemoryAssociationStore.size());
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(InMemoryConsumerAssociationStoreTest.class);
     }
 }

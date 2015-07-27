@@ -4,19 +4,16 @@
 
 package org.openid4java.discovery.html;
 
-import java.io.IOException;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.openid4java.discovery.DiscoveryException;
 
+import java.io.IOException;
+
 /**
  * @author Sutra Zhou
- * 
  */
-public class CyberNekoDOMHtmlParserTest extends TestCase
-{
+public class CyberNekoDOMHtmlParserTest extends TestCase {
     private CyberNekoDOMHtmlParser parser;
 
     /*
@@ -24,8 +21,7 @@ public class CyberNekoDOMHtmlParserTest extends TestCase
      * 
      * @see junit.framework.TestCase#setUp()
      */
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         super.setUp();
         parser = new CyberNekoDOMHtmlParser();
     }
@@ -34,12 +30,11 @@ public class CyberNekoDOMHtmlParserTest extends TestCase
      * Test method for
      * {@link org.openid4java.discovery.html.CyberNekoDOMHtmlParser#parseHtml(java.lang.String, org.openid4java.discovery.html.HtmlResult)}
      * .
-     * 
+     *
      * @throws IOException
      * @throws DiscoveryException
      */
-    public void testParseHtml() throws IOException, DiscoveryException
-    {
+    public void testParseHtml() throws IOException, DiscoveryException {
         String htmlData = IOUtils.toString(this.getClass().getResourceAsStream(
                 "identityPage.html"));
         HtmlResult result = new HtmlResult();
@@ -55,13 +50,12 @@ public class CyberNekoDOMHtmlParserTest extends TestCase
      * Test method for
      * {@link org.openid4java.discovery.html.CyberNekoDOMHtmlParser#parseHtml(java.lang.String, org.openid4java.discovery.html.HtmlResult)}
      * .
-     * 
+     *
      * @throws IOException
      * @throws DiscoveryException
      */
     public void testParseHtmlWithXmlNamespace() throws IOException,
-            DiscoveryException
-    {
+                                                       DiscoveryException {
         String htmlData = IOUtils.toString(this.getClass().getResourceAsStream(
                 "identityPage-with-xml-namespace.html"));
         HtmlResult result = new HtmlResult();

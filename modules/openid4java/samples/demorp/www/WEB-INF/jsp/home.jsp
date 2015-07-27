@@ -2,7 +2,6 @@
   ~ Copyright 2006-2008 Sxip Identity Corporation
   --%>
 
-<%@ page import="java.util.Calendar"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -15,16 +14,14 @@
     <title>${title}</title>
 
     <style type="text/css" xml:space="preserve">
-        #assertion
-        {
-            display:none;
+        #assertion {
+            display: none;
             font-size: 9pt;
         }
     </style>
 
     <script type="text/javascript" xml:space="preserve">
-        function toggleAssertion()
-        {
+        function toggleAssertion() {
             var a = document.getElementById('assertion');
 
             if (a.style.display != 'block')
@@ -46,20 +43,20 @@
 
         <table cellpadding="5">
 
-      <c:forEach var="parameter" items="${attributes}">
-          <c:if test="${not empty parameter.value}">
-            <tr >
-            <td>${parameter.key}:</td>
-            <td>${parameter.value}</td>
-            </tr>
-          </c:if>
-          <c:if test="${empty parameter.value}">
-            <tr style="color: #ccc;">
-              <td><font color="#ccc">${parameter.key}:</td>
-              <td>N/A</td>
-            </tr>
-          </c:if>
-      </c:forEach>
+            <c:forEach var="parameter" items="${attributes}">
+                <c:if test="${not empty parameter.value}">
+                    <tr>
+                        <td>${parameter.key}:</td>
+                        <td>${parameter.value}</td>
+                    </tr>
+                </c:if>
+                <c:if test="${empty parameter.value}">
+                    <tr style="color: #ccc;">
+                        <td><font color="#ccc">${parameter.key}:</td>
+                        <td>N/A</td>
+                    </tr>
+                </c:if>
+            </c:forEach>
 
         </table>
 
@@ -69,23 +66,24 @@
 ${fn:escapeXml(openidAssertion)}
         </pre>
 
-      <br />
+        <br/>
 
 
-      <form name="openid-logout" action="<c:out value='${pageContext.request.contextPath}'/>/" method="post">
-        <button type="submit" name="logout">Logout</button>
-      </form>
+        <form name="openid-logout" action="<c:out value='${pageContext.request.contextPath}'/>/" method="post">
+            <button type="submit" name="logout">Logout</button>
+        </form>
 
 
         <div id="contents">${contents}</div>
     </div>
 
     <div id="footer">
-    <ul>
-     <li class="footer_contact"><a href="http://nym.sxip.com/nymail/sendmail.pl?a=2a89335f448c01ac"
-       target="_blank">Contact</a></li>
-    </ul>
-    <div class="footer_copyright">&copy; 2006-2008 <a href="http://www.sxip.com/">Sxip Identity Corporation.</a></div>
+        <ul>
+            <li class="footer_contact"><a href="http://nym.sxip.com/nymail/sendmail.pl?a=2a89335f448c01ac"
+                                          target="_blank">Contact</a></li>
+        </ul>
+        <div class="footer_copyright">&copy; 2006-2008 <a href="http://www.sxip.com/">Sxip Identity Corporation.</a>
+        </div>
     </div>
 </div>
 </body>

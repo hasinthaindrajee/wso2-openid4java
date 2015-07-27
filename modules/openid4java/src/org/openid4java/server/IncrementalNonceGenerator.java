@@ -4,18 +4,16 @@
 
 package org.openid4java.server;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openid4java.util.InternetDateFormat;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class IncrementalNonceGenerator implements NonceGenerator
-{
+public class IncrementalNonceGenerator implements NonceGenerator {
     private static Log _log = LogFactory.getLog(IncrementalNonceGenerator.class);
     private static final boolean DEBUG = _log.isDebugEnabled();
 
@@ -25,38 +23,34 @@ public class IncrementalNonceGenerator implements NonceGenerator
     private String _nodeTimestamp = "";
 
     private int _counter = 0;
-    
-    public IncrementalNonceGenerator()
-    {
-    	_nodeTimestamp = Long.toString(new Date().getTime());
+
+    public IncrementalNonceGenerator() {
+        _nodeTimestamp = Long.toString(new Date().getTime());
 
     }
-    
 
-    public synchronized String next()
-    {
+
+    public synchronized String next() {
         String currentTimestamp = getCurrentTimpestamp();
 
-        if (_timestamp.equals(currentTimestamp))
-        {
+        if (_timestamp.equals(currentTimestamp)) {
             _counter++;
-        }
-        else
-        {
+        } else {
             _timestamp = currentTimestamp;
             _counter = 0;
         }
 
-		String nonce = _timestamp + Integer.toString(_counter) + _nodeTimestamp;
+        String nonce = _timestamp + Integer.toString(_counter) + _nodeTimestamp;
 
-        if (DEBUG) _log.debug("Generated nonce: " + nonce);
+        if (DEBUG) {
+            _log.debug("Generated nonce: " + nonce);
+        }
 
         return nonce;
 
     }
 
-    private String getCurrentTimpestamp()
-    {
+    private String getCurrentTimpestamp() {
         Date now = new Date();
 
         return _dateFormat.format(now);

@@ -10,9 +10,8 @@ import org.apache.http.Header;
  *
  * @author Marius Scurtescu, Johnny Bufu
  */
-public interface HttpResponse
-{
-     /**
+public interface HttpResponse {
+    /**
      * Gets the status code of the HttpResponse.
      */
     public int getStatusCode();
@@ -22,6 +21,7 @@ public interface HttpResponse
      * after following redirects.
      */
     public String getFinalUri();
+
     /**
      * Gets the first header matching the provided headerName parameter,
      * or null if no header with that name exists.

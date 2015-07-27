@@ -5,30 +5,34 @@
 package org.openid4java.association;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
-
-import javax.crypto.spec.DHParameterSpec;
-import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.interfaces.DHPrivateKey;
-import java.security.KeyPair;
-import java.security.GeneralSecurityException;
-import java.math.BigInteger;
-
+import junit.framework.TestSuite;
 import org.apache.commons.codec.binary.Base64;
+
+import javax.crypto.interfaces.DHPrivateKey;
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.DHParameterSpec;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class DiffieHellmanSessionTest extends TestCase
-{
-    public DiffieHellmanSessionTest(String name)
-    {
+public class DiffieHellmanSessionTest extends TestCase {
+    public DiffieHellmanSessionTest(String name) {
         super(name);
     }
 
-    public void testGetDefaultParameterSha1() throws Exception
-    {
+    private static String privateKeyToString(DHPrivateKey dhPrivateKey) {
+        return new String(Base64.encodeBase64(dhPrivateKey.getX().toByteArray()));
+    }
+
+    public static Test suite() {
+        return new TestSuite(DiffieHellmanSessionTest.class);
+    }
+
+    public void testGetDefaultParameterSha1() throws Exception {
         DHParameterSpec parameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         assertNotNull(parameterSpec);
@@ -37,8 +41,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertEquals(DiffieHellmanSession.DEFAULT_MODULUS_HEX.length() * 4, parameterSpec.getP().bitLength());
     }
 
-    public void testGetDefaultParameterSha256() throws Exception
-    {
+    public void testGetDefaultParameterSha256() throws Exception {
         DHParameterSpec parameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         assertNotNull(parameterSpec);
@@ -47,8 +50,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertEquals(DiffieHellmanSession.DEFAULT_MODULUS_HEX.length() * 4, parameterSpec.getP().bitLength());
     }
 
-    public void testGenerateRandomParameterSha1() throws Exception
-    {
+    public void testGenerateRandomParameterSha1() throws Exception {
         DHParameterSpec parameterSpec = DiffieHellmanSession.generateRandomParameter(512, 256);
 
         assertNotNull(parameterSpec);
@@ -56,8 +58,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertEquals(512, parameterSpec.getP().bitLength());
     }
 
-    public void testGenerateRandomParameterSha256() throws Exception
-    {
+    public void testGenerateRandomParameterSha256() throws Exception {
         DHParameterSpec parameterSpec = DiffieHellmanSession.generateRandomParameter(512, 256);
 
         assertNotNull(parameterSpec);
@@ -65,8 +66,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertEquals(512, parameterSpec.getP().bitLength());
     }
 
-    public void testGenerateKeyPairSha1Default()
-    {
+    public void testGenerateKeyPairSha1Default() {
         DHParameterSpec parameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         KeyPair keyPair = DiffieHellmanSession.generateKeyPair(parameterSpec);
@@ -74,8 +74,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertNotNull(keyPair);
     }
 
-    public void testGenerateKeyPairSha256Default()
-    {
+    public void testGenerateKeyPairSha256Default() {
         DHParameterSpec parameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         KeyPair keyPair = DiffieHellmanSession.generateKeyPair(parameterSpec);
@@ -83,8 +82,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertNotNull(keyPair);
     }
 
-    public void testGenerateKeyPairSha1Random()
-    {
+    public void testGenerateKeyPairSha1Random() {
         DHParameterSpec parameterSpec = DiffieHellmanSession.generateRandomParameter(512, 256);
 
         KeyPair keyPair = DiffieHellmanSession.generateKeyPair(parameterSpec);
@@ -92,8 +90,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertNotNull(keyPair);
     }
 
-    public void testGenerateKeyPairSha256Random()
-    {
+    public void testGenerateKeyPairSha256Random() {
         DHParameterSpec parameterSpec = DiffieHellmanSession.generateRandomParameter(512, 256);
 
         KeyPair keyPair = DiffieHellmanSession.generateKeyPair(parameterSpec);
@@ -101,8 +98,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertNotNull(keyPair);
     }
 
-    public void testPublicKeyConversion() throws AssociationException
-    {
+    public void testPublicKeyConversion() throws AssociationException {
         DHParameterSpec dhParameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         DiffieHellmanSession diffieHellmanSession = DiffieHellmanSession.create(AssociationSessionType.DH_SHA1, dhParameterSpec);
@@ -117,8 +113,7 @@ public class DiffieHellmanSessionTest extends TestCase
         assertEquals(publicKeyBase64, DiffieHellmanSession.publicKeyToString(publicKey));
     }
 
-    public void testEncryptDecryptMacKeySha1() throws GeneralSecurityException, AssociationException
-    {
+    public void testEncryptDecryptMacKeySha1() throws GeneralSecurityException, AssociationException {
         DHParameterSpec dhParameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         assertNotNull(dhParameterSpec);
@@ -129,8 +124,7 @@ public class DiffieHellmanSessionTest extends TestCase
         testEncryptDecryptMacKey(consumerDiffieHellmanSession, macKey);
     }
 
-    public void testEncryptDecryptMacKeySha1Random() throws GeneralSecurityException, AssociationException
-    {
+    public void testEncryptDecryptMacKeySha1Random() throws GeneralSecurityException, AssociationException {
         DHParameterSpec dhParameterSpec = DiffieHellmanSession.generateRandomParameter(512, 256);
 
         assertNotNull(dhParameterSpec);
@@ -141,8 +135,7 @@ public class DiffieHellmanSessionTest extends TestCase
         testEncryptDecryptMacKey(consumerDiffieHellmanSession, macKey);
     }
 
-    public void testEncryptDecryptMacKeySha256() throws GeneralSecurityException, AssociationException
-    {
+    public void testEncryptDecryptMacKeySha256() throws GeneralSecurityException, AssociationException {
         DHParameterSpec dhParameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         assertNotNull(dhParameterSpec);
@@ -153,8 +146,7 @@ public class DiffieHellmanSessionTest extends TestCase
         testEncryptDecryptMacKey(consumerDiffieHellmanSession, macKey);
     }
 
-    public void testEncryptDecryptMacKeySha256Random() throws GeneralSecurityException, AssociationException
-    {
+    public void testEncryptDecryptMacKeySha256Random() throws GeneralSecurityException, AssociationException {
         DHParameterSpec dhParameterSpec = DiffieHellmanSession.generateRandomParameter(512, 256);
 
         assertNotNull(dhParameterSpec);
@@ -166,10 +158,9 @@ public class DiffieHellmanSessionTest extends TestCase
     }
 
     private void testEncryptDecryptMacKey(DiffieHellmanSession consumerDiffieHellmanSession, byte[] macKey)
-            throws AssociationException
-    {
+            throws AssociationException {
         AssociationSessionType type = consumerDiffieHellmanSession.getType();
-        String modulusBase64   = consumerDiffieHellmanSession.getModulus();
+        String modulusBase64 = consumerDiffieHellmanSession.getModulus();
         String generatorBase64 = consumerDiffieHellmanSession.getGenerator();
         String consumerPublicKeyBase64 = consumerDiffieHellmanSession.getPublicKey();
         String consumerPrivateKeyBase64 = privateKeyToString(consumerDiffieHellmanSession.getPrivateKey());
@@ -190,14 +181,12 @@ public class DiffieHellmanSessionTest extends TestCase
 
         assertEquals(macKey.length, macKey2.length);
 
-        for (int i = 0; i < macKey.length; i++)
-        {
+        for (int i = 0; i < macKey.length; i++) {
             assertEquals(macKey[i], macKey2[i]);
         }
     }
 
-    public void testPublicKey() throws AssociationException
-    {
+    public void testPublicKey() throws AssociationException {
         DHParameterSpec dhParameterSpec = DiffieHellmanSession.getDefaultParameter();
 
         DiffieHellmanSession diffieHellmanSession = DiffieHellmanSession.create(AssociationSessionType.DH_SHA1, dhParameterSpec);
@@ -212,15 +201,5 @@ public class DiffieHellmanSessionTest extends TestCase
 
         assertTrue(y.compareTo(two) != -1);
         assertTrue(y.compareTo(p) == -1);
-    }
-
-    private static String privateKeyToString(DHPrivateKey dhPrivateKey)
-    {
-        return new String(Base64.encodeBase64(dhPrivateKey.getX().toByteArray()));
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(DiffieHellmanSessionTest.class);
     }
 }

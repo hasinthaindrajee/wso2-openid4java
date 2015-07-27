@@ -10,11 +10,11 @@
     <title>OpenID HTML FORM Redirection</title>
 </head>
 <body onload="document.forms['openid-form-redirection'].submit();">
-    <form name="openid-form-redirection" action="${message.OPEndpoint}" method="post" accept-charset="utf-8">
-        <c:forEach var="parameter" items="${message.parameterMap}">
+<form name="openid-form-redirection" action="${message.OPEndpoint}" method="post" accept-charset="utf-8">
+    <c:forEach var="parameter" items="${message.parameterMap}">
         <input type="hidden" name="${parameter.key}" value="${parameter.value}"/>
-        </c:forEach>
-        <button type="submit">Continue...</button>
-    </form>
+    </c:forEach>
+    <button type="submit">Continue...</button>
+</form>
 </body>
 </html>

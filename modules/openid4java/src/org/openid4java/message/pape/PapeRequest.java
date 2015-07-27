@@ -4,77 +4,76 @@
 
 package org.openid4java.message.pape;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openid4java.OpenIDException;
 import org.openid4java.message.MessageException;
 import org.openid4java.message.Parameter;
 import org.openid4java.message.ParameterList;
-import org.openid4java.OpenIDException;
 
-import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Implements the extension for OpenID Provider Authentication Policy requests.
  *
- * @see PapeMessage Message
  * @author Marius Scurtescu, Johnny Bufu
+ * @see PapeMessage Message
  */
-public class PapeRequest extends PapeMessage
-{
-    private static Log _log = LogFactory.getLog(PapeRequest.class);
-    private static final boolean DEBUG = _log.isDebugEnabled();
-
-    protected final static List PAPE_FIELDS = Arrays.asList( new String[] {
+public class PapeRequest extends PapeMessage {
+    protected final static List PAPE_FIELDS = Arrays.asList(new String[]{
             "preferred_auth_policies", "preferred_auth_level_types", "max_auth_age"
     });
+    private static Log _log = LogFactory.getLog(PapeRequest.class);
+    private static final boolean DEBUG = _log.isDebugEnabled();
 
     /**
      * Constructs a Pape Request with an empty parameter list.
      */
-    protected PapeRequest()
-    {
+    protected PapeRequest() {
         set("preferred_auth_policies", "");
 
-        if (DEBUG) _log.debug("Created empty Pape request.");
+        if (DEBUG) {
+            _log.debug("Created empty Pape request.");
+        }
+    }
+
+    /**
+     * Constructs a PapeRequest from a parameter list.
+     * <p/>
+     * The parameter list can be extracted from a received message with the
+     * getExtensionParams method of the Message class, and MUST NOT contain
+     * the "openid.<extension_alias>." prefix.
+     */
+    protected PapeRequest(ParameterList params) {
+        super(params);
     }
 
     /**
      * Constructs a Pape Request with an empty parameter list.
      */
-    public static PapeRequest createPapeRequest()
-    {
+    public static PapeRequest createPapeRequest() {
         return new PapeRequest();
     }
 
     /**
      * Constructs a PapeRequest from a parameter list.
-     * <p>
-     * The parameter list can be extracted from a received message with the
-     * getExtensionParams method of the Message class, and MUST NOT contain
-     * the "openid.<extension_alias>." prefix.
-     */
-    protected PapeRequest(ParameterList params)
-    {
-        super(params);
-    }
-
-    /**
-     * Constructs a PapeRequest from a parameter list.
-     * <p>
+     * <p/>
      * The parameter list can be extracted from a received message with the
      * getExtensionParams method of the Message class, and MUST NOT contain
      * the "openid.<extension_alias>." prefix.
      */
     public static PapeRequest createPapeRequest(ParameterList params)
-            throws MessageException
-    {
+            throws MessageException {
         PapeRequest req = new PapeRequest(params);
 
         req.validate();
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Created PAPE request from parameter list:\n" + params);
+        }
 
         return req;
     }
@@ -82,22 +81,20 @@ public class PapeRequest extends PapeMessage
     /**
      * Gets the preferred_auth_policies parameter value.
      */
-    public String getPreferredAuthPolicies()
-    {
+    public String getPreferredAuthPolicies() {
         return getParameterValue("preferred_auth_policies");
     }
 
     /**
      * Sets a new value for the preferred_auth_policies parameter.
-     *
+     * <p/>
      * The previous value of the parameter will be owerwritten.
      *
-     * @param policyUris    Space separated list of authentication policy
-     *                      URIs to be set.
+     * @param policyUris Space separated list of authentication policy
+     *                   URIs to be set.
      * @see #addPreferredAuthPolicy(String)
      */
-    public void setPreferredAuthPolicies(String policyUris)
-    {
+    public void setPreferredAuthPolicies(String policyUris) {
         // todo: enforce that policyUri is a valid URI?
 
         set("preferred_auth_policies", policyUris);
@@ -107,96 +104,88 @@ public class PapeRequest extends PapeMessage
      * Adds an authentication policy URI to the preferred_auth_policies
      * parameter.
      *
-     * @param policyUri     The authentication policy URI to be set.
+     * @param policyUri The authentication policy URI to be set.
      * @see #setPreferredAuthPolicies(String)
      */
-    public void addPreferredAuthPolicy(String policyUri)
-    {
+    public void addPreferredAuthPolicy(String policyUri) {
         // todo: check that policyUri isn't already in the list?
 
         String policies = getPreferredAuthPolicies();
 
-        if (policies == null || policies.length() == 0)
+        if (policies == null || policies.length() == 0) {
             setPreferredAuthPolicies(policyUri);
-
-        else
+        } else {
             setPreferredAuthPolicies(policies + " " + policyUri);
+        }
     }
 
     /**
      * Gets a list with the preferred_auth_policies. An empty list is
      * returned if no authentication policies exist.
-     *
      */
-    public List getPreferredAuthPoliciesList()
-    {
+    public List getPreferredAuthPoliciesList() {
         String policies = getParameterValue("preferred_auth_policies");
 
-        if (policies != null)
+        if (policies != null) {
             return Arrays.asList(policies.split(" "));
-        else
+        } else {
             return new ArrayList();
-    }
-
-    /**
-     * Sets the max_auth_age parameter.
-     *
-     * @param seconds   The number of seconds within which the OP is
-     *                  requested to have actively authenticated the user.
-     */
-    public void setMaxAuthAge(int seconds)
-    {
-        set("max_auth_age", Integer.toString(seconds));
+        }
     }
 
     /**
      * Gets the max_auth_age parameter.
      *
-     * @return          The number of seconds within which the OP is
-     *                  requested to have actively authenticated the user,
-     *                  or -1 if max_auth_age is not present in the request.
+     * @return The number of seconds within which the OP is
+     * requested to have actively authenticated the user,
+     * or -1 if max_auth_age is not present in the request.
      */
-    public int getMaxAuthAge()
-    {
+    public int getMaxAuthAge() {
         String maxAuthAge = getParameterValue("max_auth_age");
 
-        if (maxAuthAge != null)
+        if (maxAuthAge != null) {
             return Integer.parseInt(maxAuthAge);
-        else
+        } else {
             return -1;
+        }
+    }
+
+    /**
+     * Sets the max_auth_age parameter.
+     *
+     * @param seconds The number of seconds within which the OP is
+     *                requested to have actively authenticated the user.
+     */
+    public void setMaxAuthAge(int seconds) {
+        set("max_auth_age", Integer.toString(seconds));
     }
 
     /**
      * Checks the validity of the extension.
-     * <p>
+     * <p/>
      * Used when constructing a extension from a parameter list.
      *
      * @throws MessageException if the PapeRequest is not valid.
      */
-    public void validate() throws MessageException
-    {
-        if (! _parameters.hasParameter("preferred_auth_policies"))
-        {
+    public void validate() throws MessageException {
+        if (!_parameters.hasParameter("preferred_auth_policies")) {
             throw new MessageException(
-                "preferred_auth_policies is required in a PAPE request.",
-                OpenIDException.PAPE_ERROR);
+                    "preferred_auth_policies is required in a PAPE request.",
+                    OpenIDException.PAPE_ERROR);
         }
 
         Iterator it = _parameters.getParameters().iterator();
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             String paramName = ((Parameter) it.next()).getKey();
-            if (! PAPE_FIELDS.contains(paramName) && ! paramName.startsWith(PapeMessage.AUTH_LEVEL_NS_PREFIX))
-            {
+            if (!PAPE_FIELDS.contains(paramName) && !paramName.startsWith(PapeMessage.AUTH_LEVEL_NS_PREFIX)) {
                 throw new MessageException(
-                    "Invalid parameter name in PAPE request: " + paramName,
-                    OpenIDException.PAPE_ERROR);
+                        "Invalid parameter name in PAPE request: " + paramName,
+                        OpenIDException.PAPE_ERROR);
             }
         }
     }
 
-    public void addPreferredCustomAuthLevel(String authLevelTypeUri)
-    {
+    public void addPreferredCustomAuthLevel(String authLevelTypeUri) {
         String alias = addAuthLevelExtension(authLevelTypeUri);
         String preferred = getParameterValue("preferred_auth_level_types");
         set("preferred_auth_level_types", preferred == null ? alias : preferred + " " + alias);

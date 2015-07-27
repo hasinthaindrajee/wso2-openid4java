@@ -4,18 +4,6 @@
 
 package org.openid4java.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLAttributes;
@@ -27,59 +15,74 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+
 /**
  * A DOMParser extends from Cyberneko HTML.
  * <p>
  * This extended parser marks that a(or more) HTML element <code>head</code> is
  * ignored while parsing.
  * </p>
- * 
+ *
  * @author Sutra Zhou
  * @see <a href="http://nekohtml.sourceforge.net/index.html">NekoHTML</a>
  * @since 0.9.4
  */
-public class OpenID4JavaDOMParser extends DOMParser implements HTMLTagBalancingListener
-{
+public class OpenID4JavaDOMParser extends DOMParser implements HTMLTagBalancingListener {
+    private boolean ignoredHeadStartElement;
+
+    /**
+     * @see <a href="http://nekohtml.sourceforge.net/settings.html">NekoHTML | Parser Settings</a>
+     */
+    public OpenID4JavaDOMParser() {
+        try {
+            this.setFeature("http://xml.org/sax/features/namespaces", false);
+        } catch (SAXNotRecognizedException e) {
+            // Do nothing as this exception will not happen.
+        } catch (SAXNotSupportedException e) {
+            // Do nothing as this exception will not happen.
+        }
+    }
+
     /**
      * Create an InputSource form a String.
-     * 
-     * @param s
-     *            the String
+     *
+     * @param s the String
      * @return an InputSource
-     * @throws NullPointerException
-     *             if s is null.
+     * @throws NullPointerException if s is null.
      */
-    public static InputSource createInputSource(String s)
-    {
-        try
-        {
+    public static InputSource createInputSource(String s) {
+        try {
             return new InputSource(
                     new ByteArrayInputStream(s.getBytes("UTF-8")));
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
      * Transform the document to string.
-     * 
+     *
      * @param doc the document
      * @return a string
      * @throws TransformerException If an unrecoverable error occurs
-     *   during the course of the transformation.
+     *                              during the course of the transformation.
      */
-    public static String toXmlString(Document doc) throws TransformerException
-    {
+    public static String toXmlString(Document doc) throws TransformerException {
         TransformerFactory factory = TransformerFactory.newInstance();
         Transformer transformer;
-        try
-        {
+        try {
             transformer = factory.newTransformer();
-        }
-        catch (TransformerConfigurationException e)
-        {
+        } catch (TransformerConfigurationException e) {
             throw new RuntimeException(e);
         }
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -93,41 +96,17 @@ public class OpenID4JavaDOMParser extends DOMParser implements HTMLTagBalancingL
         return xmlString.toString();
     }
 
-    private boolean ignoredHeadStartElement;
-
-    /**
-     * @see <a href="http://nekohtml.sourceforge.net/settings.html">NekoHTML | Parser Settings</a>
-     */
-    public OpenID4JavaDOMParser() {
-        try
-        {
-            this.setFeature("http://xml.org/sax/features/namespaces", false);
-        }
-        catch (SAXNotRecognizedException e)
-        {
-            // Do nothing as this exception will not happen.
-        }
-        catch (SAXNotSupportedException e)
-        {
-            // Do nothing as this exception will not happen.
-        }
-    }
-
-    public boolean isIgnoredHeadStartElement()
-    {
+    public boolean isIgnoredHeadStartElement() {
         return ignoredHeadStartElement;
     }
 
-    public void ignoredEndElement(QName element, Augmentations augs)
-    {
+    public void ignoredEndElement(QName element, Augmentations augs) {
         // Do nothing.
     }
 
-    public void ignoredStartElement(QName element, XMLAttributes attrs, Augmentations augs)
-    {
+    public void ignoredStartElement(QName element, XMLAttributes attrs, Augmentations augs) {
         if (element.rawname.equals("HEAD")
-                && this.fCurrentNode instanceof HTMLHtmlElement)
-        {
+            && this.fCurrentNode instanceof HTMLHtmlElement) {
             this.ignoredHeadStartElement = true;
         }
     }

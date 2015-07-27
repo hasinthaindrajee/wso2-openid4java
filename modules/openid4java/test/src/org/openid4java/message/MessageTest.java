@@ -5,26 +5,27 @@
 package org.openid4java.message;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class MessageTest extends TestCase
-{
+public class MessageTest extends TestCase {
     private Message _msg;
 
-    public MessageTest(String name)
-    {
+    public MessageTest(String name) {
         super(name);
     }
 
-    public void setUp() throws Exception
-    {
+    public static Test suite() {
+        return new TestSuite(MessageTest.class);
+    }
+
+    public void setUp() throws Exception {
         ParameterList params = new ParameterList();
 
         params.set(new Parameter("key1", "value1"));
@@ -34,37 +35,27 @@ public class MessageTest extends TestCase
         _msg = new Message(params);
     }
 
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         _msg = null;
     }
 
-    public void testKeyValueFormEncoding() throws Exception
-    {
+    public void testKeyValueFormEncoding() throws Exception {
         String keyValueForm = "key1:value2\nkey2:value1\n";
 
         assertEquals(keyValueForm, _msg.keyValueFormEncoding());
     }
 
-    public void testWwwFormEncoding() throws Exception
-    {
+    public void testWwwFormEncoding() throws Exception {
         String wwwForm = "openid.key1=value2&openid.key2=value1";
 
         assertEquals(wwwForm, _msg.wwwFormEncoding());
     }
 
-    public static Test suite()
-    {
-        return new TestSuite(MessageTest.class);
-    }
-
-    public void testNotAllowedChars() throws Exception
-    {
+    public void testNotAllowedChars() throws Exception {
         Parameter param;
         Map parameterMap;
 
-        try
-        {
+        try {
             // semicolon in key
             param = new Parameter("some:key", "value");
             parameterMap = new HashMap();
@@ -73,12 +64,11 @@ public class MessageTest extends TestCase
             Message.createMessage(new ParameterList(parameterMap));
 
             fail("A MessageException should be thrown " +
-                    "if the key/values contain invalid characters");
+                 "if the key/values contain invalid characters");
         } catch (MessageException expected) {
             assertTrue(true);
         }
-        try
-        {
+        try {
             // newline in key
             param = new Parameter("some\nkey\n", "value");
             parameterMap = new HashMap();
@@ -87,12 +77,11 @@ public class MessageTest extends TestCase
             Message.createMessage(new ParameterList(parameterMap));
 
             fail("A MessageException should be thrown " +
-                    "if the key/values contain invalid characters");
+                 "if the key/values contain invalid characters");
         } catch (MessageException expected) {
             assertTrue(true);
         }
-        try
-        {
+        try {
             // newline in value
             param = new Parameter("key", "val\nue");
             parameterMap = new HashMap();
@@ -101,12 +90,11 @@ public class MessageTest extends TestCase
             Message.createMessage(new ParameterList(parameterMap));
 
             fail("A MessageException should be thrown " +
-                    "if the key/values contain invalid characters");
+                 "if the key/values contain invalid characters");
         } catch (MessageException expected) {
             assertTrue(true);
         }
-        try
-        {
+        try {
             // all of the above
             param = new Parameter("some:\nkey", "value\n");
             parameterMap = new HashMap();
@@ -115,7 +103,7 @@ public class MessageTest extends TestCase
             Message.createMessage(new ParameterList(parameterMap));
 
             fail("A MessageException should be thrown " +
-                    "if the key/values contain invalid characters");
+                 "if the key/values contain invalid characters");
         } catch (MessageException expected) {
             assertTrue(true);
         }

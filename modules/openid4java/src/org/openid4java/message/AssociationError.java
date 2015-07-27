@@ -4,37 +4,31 @@
 
 package org.openid4java.message;
 
-import org.openid4java.association.AssociationSessionType;
-import org.openid4java.OpenIDException;
-
-import java.util.List;
-import java.util.Arrays;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.OpenIDException;
+import org.openid4java.association.AssociationSessionType;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class AssociationError extends DirectError
-{
-    private static Log _log = LogFactory.getLog(AssociationError.class);
-
+public class AssociationError extends DirectError {
     public static final String ASSOC_ERR = "unsupported-type";
-
-    protected final static List requiredFields = Arrays.asList( new String[] {
+    protected final static List requiredFields = Arrays.asList(new String[]{
             "ns",
             "error_code",
             "error",
     });
-
-    protected final static List optionalFields = Arrays.asList( new String[] {
+    protected final static List optionalFields = Arrays.asList(new String[]{
             "assoc_type",
             "session_type"
     });
+    private static Log _log = LogFactory.getLog(AssociationError.class);
 
-    protected AssociationError(String msg, AssociationSessionType type)
-    {
+    protected AssociationError(String msg, AssociationSessionType type) {
         super(msg);
 
         set("ns", OPENID2_NS);
@@ -43,22 +37,17 @@ public class AssociationError extends DirectError
         set("assoc_type", type.getAssociationType());
     }
 
-    protected AssociationError(ParameterList params)
-    {
+    protected AssociationError(ParameterList params) {
         super(params);
     }
 
     public static AssociationError createAssociationError(
-            String msg, AssociationSessionType type)
-    {
+            String msg, AssociationSessionType type) {
         AssociationError err = new AssociationError(msg, type);
 
-        try
-        {
+        try {
             err.validate();
-        }
-        catch (MessageException e)
-        {
+        } catch (MessageException e) {
             _log.error("Invalid association error message created, " +
                        "type: " + type + " message: " + msg, e);
         }
@@ -66,58 +55,49 @@ public class AssociationError extends DirectError
         return err;
     }
 
-    public static AssociationError createAssociationError(ParameterList params)
-    {
+    public static AssociationError createAssociationError(ParameterList params) {
         AssociationError err = new AssociationError(params);
 
-        try
-        {
+        try {
             err.validate();
-        }
-        catch (MessageException e)
-        {
+        } catch (MessageException e) {
             _log.error("Invalid association error message created: "
-                       + err.keyValueFormEncoding(), e );
+                       + err.keyValueFormEncoding(), e);
         }
 
         return err;
     }
 
-    public List getRequiredFields()
-    {
+    public List getRequiredFields() {
         return requiredFields;
     }
 
-    public void setAssociationSessionType(AssociationSessionType type)
-    {
+    public void setAssociationSessionType(AssociationSessionType type) {
         set("session_type", type.getSessionType());
         set("assoc_type", type.getAssociationType());
     }
 
-    public String getSessionType()
-    {
+    public String getSessionType() {
         return getParameterValue("session_type");
     }
 
-    public String getAssocType()
-    {
+    public String getAssocType() {
         return getParameterValue("assoc_type");
     }
 
-    private String getErrorCode()
-    {
+    private String getErrorCode() {
         return getParameterValue("error_code");
     }
 
-    public void validate() throws MessageException
-    {
+    public void validate() throws MessageException {
         super.validate();
 
-        if ( ! (ASSOC_ERR.equals(getErrorCode()) &&
-                OPENID2_NS.equals(getParameterValue("ns")) ) )
+        if (!(ASSOC_ERR.equals(getErrorCode()) &&
+              OPENID2_NS.equals(getParameterValue("ns")))) {
             throw new MessageException("Invalid Association Error: " +
-                "invalid error_code or missing ns param.",
-                OpenIDException.ASSOC_ERROR);
+                                       "invalid error_code or missing ns param.",
+                                       OpenIDException.ASSOC_ERROR);
+        }
     }
 
 }

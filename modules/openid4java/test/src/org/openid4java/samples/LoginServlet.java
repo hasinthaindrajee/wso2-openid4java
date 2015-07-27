@@ -4,32 +4,25 @@
 
 package org.openid4java.samples;
 
-import java.io.PrintWriter;
+import org.openid4java.consumer.SampleConsumer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
-import org.openid4java.consumer.SampleConsumer;
-
-public class LoginServlet extends HttpServletSupport
-{
+public class LoginServlet extends HttpServletSupport {
     private static final long serialVersionUID = 1L;
     private SampleConsumer consumer_;
 
-    public LoginServlet(SampleConsumer consumer)
-    {
+    public LoginServlet(SampleConsumer consumer) {
         consumer_ = consumer;
     }
 
-    protected void onService(HttpServletRequest req, HttpServletResponse resp) throws Exception
-    {
-        if (req.getParameter("openid_identifier") != null)
-        {
+    protected void onService(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        if (req.getParameter("openid_identifier") != null) {
             logger_.info("openind_identifier set => try to consume");
             consumer_.authRequest(req.getParameter("openid_identifier"), req, resp);
-        }
-        else
-        {
+        } else {
             logger_.info("display form");
             resp.setContentType("text/html");
             PrintWriter out = resp.getWriter();

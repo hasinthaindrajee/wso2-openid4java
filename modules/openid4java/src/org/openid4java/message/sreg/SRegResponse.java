@@ -4,68 +4,70 @@
 
 package org.openid4java.message.sreg;
 
-import org.openid4java.message.ParameterList;
-import org.openid4java.message.MessageException;
-import org.openid4java.message.Parameter;
-
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.message.MessageException;
+import org.openid4java.message.Parameter;
+import org.openid4java.message.ParameterList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implements the extension for Simple Registration fetch responses.
  *
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class SRegResponse extends SRegMessage
-{
-    private static Log _log = LogFactory.getLog(SRegResponse.class);
-    private static final boolean DEBUG = _log.isDebugEnabled();
-
-    protected final static List SREG_FIELDS = Arrays.asList( new String[] {
+public class SRegResponse extends SRegMessage {
+    protected final static List SREG_FIELDS = Arrays.asList(new String[]{
             "nickname", "email", "fullname", "dob", "gender",
             "postcode", "country", "language", "timezone"
     });
+    private static Log _log = LogFactory.getLog(SRegResponse.class);
+    private static final boolean DEBUG = _log.isDebugEnabled();
 
     /**
      * Constructs a SReg Response with an empty parameter list.
      */
-    protected SRegResponse()
-    {
-        if (DEBUG) _log.debug("Created empty fetch response.");
-    }
-
-    /**
-     * Constructs a SReg Response with an empty parameter list.
-     */
-    public static SRegResponse createFetchResponse()
-    {
-        return new SRegResponse();
+    protected SRegResponse() {
+        if (DEBUG) {
+            _log.debug("Created empty fetch response.");
+        }
     }
 
     /**
      * Constructs a SReg Response from a parameter list.
-     * <p>
+     * <p/>
      * The parameter list can be extracted from a received message with the
      * getExtensionParams method of the Message class, and MUST NOT contain
      * the "openid.<extension_alias>." prefix.
      */
-    protected SRegResponse(ParameterList params)
-    {
+    protected SRegResponse(ParameterList params) {
         _parameters = params;
     }
 
+    /**
+     * Constructs a SReg Response with an empty parameter list.
+     */
+    public static SRegResponse createFetchResponse() {
+        return new SRegResponse();
+    }
+
     public static SRegResponse createSRegResponse(ParameterList params)
-            throws MessageException
-    {
+            throws MessageException {
         SRegResponse resp = new SRegResponse(params);
 
-        if (! resp.isValid())
+        if (!resp.isValid()) {
             throw new MessageException("Invalid parameters for a SReg response");
+        }
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Created SReg response from parameter list:\n" + params);
+        }
 
         return resp;
     }
@@ -74,26 +76,25 @@ public class SRegResponse extends SRegMessage
      * Creates a SRegResponse from a SRegRequest message and the data released
      * by the user.
      *
-     * @param req               SRegRequest message.
-     * @param userData          Map<String attributeName, String attributeValue> with the
-     *                          data released by the user.
-     * @return                  Properly formed SRegResponse.
+     * @param req      SRegRequest message.
+     * @param userData Map<String attributeName, String attributeValue> with the
+     *                 data released by the user.
+     * @return Properly formed SRegResponse.
      * @throws MessageException if any attribute-name in the userData map does not
      *                          correspond to an SREG field-name.
      */
     public static SRegResponse createSRegResponse(SRegRequest req, Map userData)
-            throws MessageException
-    {
+            throws MessageException {
         SRegResponse resp = new SRegResponse();
 
         List attributes = req.getAttributes();
         Iterator iter = attributes.iterator();
-        while (iter.hasNext())
-        {
+        while (iter.hasNext()) {
             String attr = (String) iter.next();
             String value = (String) userData.get(attr);
-            if (value != null)
+            if (value != null) {
                 resp.addAttribute(attr, value);
+            }
         }
 
         return resp;
@@ -105,42 +106,40 @@ public class SRegResponse extends SRegMessage
      * the ones defined in the SReg specification: nickname, email, fullname,
      * dob, gender, postcode, country, language, timezone.
      *
-     * @param       attr        An attribute name.
-     * @param       value       The value of the attribute.
+     * @param attr  An attribute name.
+     * @param value The value of the attribute.
      */
-    public void addAttribute(String attr, String value) throws MessageException
-    {
+    public void addAttribute(String attr, String value) throws MessageException {
         _parameters.set(new Parameter(attr, value));
 
-        if (! SREG_FIELDS.contains(attr))
+        if (!SREG_FIELDS.contains(attr)) {
             throw new MessageException("Invalid attribute for SReg: " + attr);
+        }
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Added new attribute to SReg response: " + attr +
                        " value: " + value);
+        }
     }
 
     /**
      * Returns the value of an attribute.
      *
-     * @param attr      The attribute name.
-     * @return          The attribute value.
+     * @param attr The attribute name.
+     * @return The attribute value.
      */
-    public String getAttributeValue(String attr)
-    {
+    public String getAttributeValue(String attr) {
         return getParameterValue(attr);
     }
 
     /**
      * Gets a list of attribute names in the SReg response.
      */
-    public List getAttributeNames()
-    {
+    public List getAttributeNames() {
         List attributes = new ArrayList();
 
         Iterator it = _parameters.getParameters().iterator();
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             attributes.add(((Parameter) it.next()).getKey());
         }
 
@@ -150,13 +149,11 @@ public class SRegResponse extends SRegMessage
     /**
      * Gets a map with attribute names -> values.
      */
-    public Map getAttributes()
-    {
+    public Map getAttributes() {
         Map attributes = new HashMap();
 
         Iterator it = _parameters.getParameters().iterator();
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             String attr = ((Parameter) it.next()).getKey();
             attributes.put(attr, getAttributeValue(attr));
         }
@@ -167,20 +164,17 @@ public class SRegResponse extends SRegMessage
 
     /**
      * Checks the validity of the extension.
-     * <p>
+     * <p/>
      * Used when constructing a extension from a parameter list.
      *
-     * @return      True if the extension is valid, false otherwise.
+     * @return True if the extension is valid, false otherwise.
      */
-    private boolean isValid()
-    {
+    private boolean isValid() {
         Iterator it = _parameters.getParameters().iterator();
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             String paramName = ((Parameter) it.next()).getKey();
 
-            if (! SREG_FIELDS.contains(paramName))
-            {
+            if (!SREG_FIELDS.contains(paramName)) {
                 _log.warn("Invalid parameter name in SReg response: " + paramName);
                 return false;
             }

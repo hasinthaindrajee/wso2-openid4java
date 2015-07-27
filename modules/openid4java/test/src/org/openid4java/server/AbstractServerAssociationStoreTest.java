@@ -5,32 +5,32 @@
 package org.openid4java.server;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.openid4java.association.Association;
 import org.openid4java.association.AssociationException;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public abstract class AbstractServerAssociationStoreTest extends TestCase
-{
+public abstract class AbstractServerAssociationStoreTest extends TestCase {
     protected ServerAssociationStore _associationStore;
 
-    public AbstractServerAssociationStoreTest(String name)
-    {
+    public AbstractServerAssociationStoreTest(String name) {
         super(name);
     }
 
-    public void setUp() throws Exception
-    {
+    public static Test suite() {
+        return new TestSuite(AbstractServerAssociationStoreTest.class);
+    }
+
+    public void setUp() throws Exception {
         _associationStore = createStore();
     }
 
     public abstract ServerAssociationStore createStore();
 
-    public void testGenerate() throws AssociationException
-    {
+    public void testGenerate() throws AssociationException {
         Association association = _associationStore.generate(Association.TYPE_HMAC_SHA1, 60);
 
         assertNotNull(association);
@@ -44,22 +44,17 @@ public abstract class AbstractServerAssociationStoreTest extends TestCase
         assertSame(association, _associationStore.load(association.getHandle()));
     }
 
-    public void testGenerateBadType()
-    {
-        try
-        {
+    public void testGenerateBadType() {
+        try {
             String badType = "xyz";
             _associationStore.generate(badType, 60);
 
             fail("Should throw exception for bad associtation type: " + badType);
-        }
-        catch (AssociationException e)
-        {
+        } catch (AssociationException e) {
         }
     }
 
-    public void testLoad() throws AssociationException
-    {
+    public void testLoad() throws AssociationException {
         assertNull(_associationStore.load(null));
         assertNull(_associationStore.load(""));
         assertNull(_associationStore.load("xyz"));
@@ -70,8 +65,7 @@ public abstract class AbstractServerAssociationStoreTest extends TestCase
         assertNotNull(_associationStore.load(handle));
     }
 
-    public void testExpiry() throws AssociationException, InterruptedException
-    {
+    public void testExpiry() throws AssociationException, InterruptedException {
         String handle = _associationStore.generate(Association.TYPE_HMAC_SHA1, 1).getHandle();
 
         assertNotNull(_associationStore.load(handle));
@@ -79,8 +73,7 @@ public abstract class AbstractServerAssociationStoreTest extends TestCase
         assertNull(_associationStore.load(handle));
     }
 
-    public void testRemove() throws AssociationException
-    {
+    public void testRemove() throws AssociationException {
         String handle = _associationStore.generate(Association.TYPE_HMAC_SHA1, 1).getHandle();
 
         assertNotNull(_associationStore.load(handle));
@@ -88,8 +81,7 @@ public abstract class AbstractServerAssociationStoreTest extends TestCase
         assertNull(_associationStore.load(handle));
     }
 
-    public void testCleanup() throws AssociationException, InterruptedException
-    {
+    public void testCleanup() throws AssociationException, InterruptedException {
         _associationStore.generate(Association.TYPE_HMAC_SHA1, 1);
         _associationStore.generate(Association.TYPE_HMAC_SHA1, 1);
         _associationStore.generate(Association.TYPE_HMAC_SHA1, 1);
@@ -98,10 +90,5 @@ public abstract class AbstractServerAssociationStoreTest extends TestCase
         Thread.sleep(2000);
 
         _associationStore.generate(Association.TYPE_HMAC_SHA1, 1);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(AbstractServerAssociationStoreTest.class);
     }
 }

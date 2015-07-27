@@ -7,118 +7,113 @@ package org.openid4java.consumer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.*;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class InMemoryNonceVerifier extends AbstractNonceVerifier
-{
+public class InMemoryNonceVerifier extends AbstractNonceVerifier {
     private static Log _log = LogFactory.getLog(InMemoryNonceVerifier.class);
     private static final boolean DEBUG = _log.isDebugEnabled();
 
     private Map _opMap = new HashMap();
 
     public InMemoryNonceVerifier() {
-      this(60);
+        this(60);
     }
 
-    public InMemoryNonceVerifier(int maxAge)
-    {
+    public InMemoryNonceVerifier(int maxAge) {
         super(maxAge);
     }
 
-    protected synchronized int seen(Date now, String opUrl, String nonce)
-    {
+    protected synchronized int seen(Date now, String opUrl, String nonce) {
         removeAged(now);
 
         Set seenSet = (Set) _opMap.get(opUrl);
 
-        if (seenSet == null)
-        {
+        if (seenSet == null) {
             seenSet = new HashSet();
 
             _opMap.put(opUrl, seenSet);
         }
 
-        if (seenSet.contains(nonce))
-        {
+        if (seenSet.contains(nonce)) {
             _log.error("Possible replay attack! Already seen nonce: " + nonce);
             return SEEN;
         }
 
         seenSet.add(nonce);
 
-        if (DEBUG) _log.debug("Nonce verified: " + nonce);
+        if (DEBUG) {
+            _log.debug("Nonce verified: " + nonce);
+        }
 
         return OK;
     }
 
-    private synchronized void removeAged(Date now)
-    {
+    private synchronized void removeAged(Date now) {
         Set opToRemove = new HashSet();
         Iterator opUrls = _opMap.keySet().iterator();
-        while (opUrls.hasNext())
-        {
+        while (opUrls.hasNext()) {
             String opUrl = (String) opUrls.next();
 
             Set seenSet = (Set) _opMap.get(opUrl);
             Set nonceToRemove = new HashSet();
 
             Iterator nonces = seenSet.iterator();
-            while (nonces.hasNext())
-            {
+            while (nonces.hasNext()) {
                 String nonce = (String) nonces.next();
 
-                try
-                {
+                try {
                     Date nonceDate = _dateFormat.parse(nonce);
 
-                    if (isTooOld(now, nonceDate))
-                    {
+                    if (isTooOld(now, nonceDate)) {
                         nonceToRemove.add(nonce);
                     }
-                }
-                catch (ParseException e)
-                {
+                } catch (ParseException e) {
                     nonceToRemove.add(nonce);
                 }
             }
 
             nonces = nonceToRemove.iterator();
-            while (nonces.hasNext())
-            {
+            while (nonces.hasNext()) {
                 String nonce = (String) nonces.next();
 
-                if (DEBUG)
+                if (DEBUG) {
                     _log.debug("Removing nonce: " + nonce +
                                " from OP: " + opUrl);
+                }
                 seenSet.remove(nonce);
             }
 
-            if (seenSet.size() == 0)
+            if (seenSet.size() == 0) {
                 opToRemove.add(opUrl);
+            }
         }
 
         opUrls = opToRemove.iterator();
-        while (opUrls.hasNext())
-        {
+        while (opUrls.hasNext()) {
             String opUrl = (String) opUrls.next();
 
-            if (DEBUG) _log.debug("Removed all nonces from OP: " + opUrl);
+            if (DEBUG) {
+                _log.debug("Removed all nonces from OP: " + opUrl);
+            }
 
             _opMap.remove(opUrl);
         }
     }
 
-    protected synchronized int size()
-    {
+    protected synchronized int size() {
         int total = 0;
 
         Iterator opUrls = _opMap.keySet().iterator();
-        while (opUrls.hasNext())
-        {
+        while (opUrls.hasNext()) {
             String opUrl = (String) opUrls.next();
 
             Set seenSet = (Set) _opMap.get(opUrl);

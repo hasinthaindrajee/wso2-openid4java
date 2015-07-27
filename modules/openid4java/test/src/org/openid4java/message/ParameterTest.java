@@ -5,21 +5,22 @@
 package org.openid4java.message;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class ParameterTest extends TestCase
-{
-    public ParameterTest(String name)
-    {
+public class ParameterTest extends TestCase {
+    public ParameterTest(String name) {
         super(name);
     }
 
-    public void testEquals() throws Exception
-    {
+    public static Test suite() {
+        return new TestSuite(ParameterTest.class);
+    }
+
+    public void testEquals() throws Exception {
         Parameter parameter1 = new Parameter("key", "value");
         Parameter parameter2 = new Parameter("key", "value");
 
@@ -57,8 +58,7 @@ public class ParameterTest extends TestCase
         assertNotSame(parameter1, parameter2);
     }
 
-    public void testHashCode() throws Exception
-    {
+    public void testHashCode() throws Exception {
         Parameter parameter1 = new Parameter("key", "value");
         Parameter parameter2 = new Parameter("key", "value");
 
@@ -90,8 +90,7 @@ public class ParameterTest extends TestCase
         assertNotSame(parameter1, parameter2);
     }
 
-    public void testGetName() throws Exception
-    {
+    public void testGetName() throws Exception {
         Parameter parameter = new Parameter(null, "value");
 
         assertNull(parameter.getKey());
@@ -105,8 +104,7 @@ public class ParameterTest extends TestCase
         assertEquals("key", parameter.getKey());
     }
 
-    public void testGetValue() throws Exception
-    {
+    public void testGetValue() throws Exception {
         Parameter parameter = new Parameter("key", null);
 
         assertNull(parameter.getValue());
@@ -118,10 +116,5 @@ public class ParameterTest extends TestCase
         parameter = new Parameter("key", "value");
 
         assertEquals("value", parameter.getValue());
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(ParameterTest.class);
     }
 }

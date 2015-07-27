@@ -4,9 +4,8 @@
 
 package org.openid4java.samples;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.TestCase;
+import net.sourceforge.jwebunit.junit.WebTester;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -15,7 +14,8 @@ import org.openid4java.message.ParameterList;
 import org.openid4java.server.SampleServer;
 import org.openid4java.server.ServerException;
 
-import net.sourceforge.jwebunit.junit.WebTester;
+import java.util.ArrayList;
+import java.util.List;
 
 //import com.gargoylesoftware.htmlunit.Page;
 //import com.gargoylesoftware.htmlunit.WebClient;
@@ -26,13 +26,9 @@ import net.sourceforge.jwebunit.junit.WebTester;
 //import com.meterware.httpunit.WebForm;
 //import com.meterware.httpunit.WebResponse;
 
-import junit.framework.TestCase;
+public class ConsumerAndProviderTest extends TestCase {
 
-public class ConsumerAndProviderTest extends TestCase
-{
-
-    static
-    {
+    static {
         System.getProperties().put("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
         System.getProperties().put("org.apache.commons.logging.simplelog.defaultlog", "trace");
     }
@@ -40,8 +36,7 @@ public class ConsumerAndProviderTest extends TestCase
     private Server _server;
     private String _baseUrl;
 
-    public ConsumerAndProviderTest(final String testName) throws Exception
-    {
+    public ConsumerAndProviderTest(final String testName) throws Exception {
         super(testName);
         int servletPort = Integer.parseInt(System.getProperty("SERVLET_PORT", "8989"));
         _server = new Server(servletPort);
@@ -56,10 +51,8 @@ public class ConsumerAndProviderTest extends TestCase
 
         context.addServlet(new ServletHolder(new UserInfoServlet()), "/user");
 
-        SampleServer server = new SampleServer(_baseUrl + "/provider")
-        {
-            protected List userInteraction(ParameterList request) throws ServerException
-            {
+        SampleServer server = new SampleServer(_baseUrl + "/provider") {
+            protected List userInteraction(ParameterList request) throws ServerException {
                 List back = new ArrayList();
                 back.add("userSelectedClaimedId"); // userSelectedClaimedId
                 back.add(Boolean.TRUE); // authenticatedAndApproved
@@ -70,24 +63,20 @@ public class ConsumerAndProviderTest extends TestCase
         context.addServlet(new ServletHolder(new ProviderServlet(server)), "/provider");
     }
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         _server.start();
     }
 
-    protected void tearDown() throws Exception
-    {
+    protected void tearDown() throws Exception {
         _server.stop();
         _server.join();
     }
 
-    public void testCycleWithXrdsUser() throws Exception
-    {
+    public void testCycleWithXrdsUser() throws Exception {
         HttpServletSupport.lastException = null;
         HttpServletSupport.count_ = 0;
         WebTester wc = new WebTester();
-        try
-        {
+        try {
             wc.setScriptingEnabled(false);
             wc.beginAt(_baseUrl + "/login");
             wc.setTextField("openid_identifier", _baseUrl + "/user");
@@ -96,28 +85,21 @@ public class ConsumerAndProviderTest extends TestCase
             wc.assertTextPresent("success");
             wc.assertTextPresent("emailFromFetch:user@example.com");
             wc.assertTextPresent("emailFromSReg:user@example.com");
-        }
-        catch (Exception exc)
-        {
+        } catch (Exception exc) {
             System.err.println("last page before exception :" + wc.getPageSource());
-            if (HttpServletSupport.lastException != null)
-            {
+            if (HttpServletSupport.lastException != null) {
                 throw HttpServletSupport.lastException;
-            }
-            else
-            {
+            } else {
                 throw exc;
             }
         }
     }
 
-    public void testCycleWithHtmlUser() throws Exception
-    {
+    public void testCycleWithHtmlUser() throws Exception {
         HttpServletSupport.lastException = null;
         HttpServletSupport.count_ = 0;
         WebTester wc = new WebTester();
-        try
-        {
+        try {
             wc.setScriptingEnabled(false);
             wc.beginAt(_baseUrl + "/login");
             wc.setTextField("openid_identifier", _baseUrl + "/user?format=html");
@@ -126,16 +108,11 @@ public class ConsumerAndProviderTest extends TestCase
             wc.assertTextPresent("success");
             wc.assertTextPresent("emailFromFetch:user@example.com");
             wc.assertTextPresent("emailFromSReg:user@example.com");
-        }
-        catch (Exception exc)
-        {
+        } catch (Exception exc) {
             System.err.println("last page before exception :" + wc.getPageSource());
-            if (HttpServletSupport.lastException != null)
-            {
+            if (HttpServletSupport.lastException != null) {
                 throw HttpServletSupport.lastException;
-            }
-            else
-            {
+            } else {
                 throw exc;
             }
         }

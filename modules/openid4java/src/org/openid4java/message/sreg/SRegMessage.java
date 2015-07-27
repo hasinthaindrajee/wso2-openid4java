@@ -4,13 +4,17 @@
 
 package org.openid4java.message.sreg;
 
-import org.openid4java.message.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.message.Message;
+import org.openid4java.message.MessageException;
+import org.openid4java.message.MessageExtension;
+import org.openid4java.message.MessageExtensionFactory;
+import org.openid4java.message.ParameterList;
 
 /**
  * Base class for the Simple Registration implementation.
- * <p>
+ * <p/>
  * Encapsulates:
  * <ul>
  * <li> the Type URI that identifies the Simple Registration extension
@@ -19,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  * <li> methods for handling the extension-specific support of parameters with
  * multpile values
  * </ul>
- *
+ * <p/>
  * Considering that:
  * <ul>
  * <li>SREG 1.0 and SREG 1.1 use the same type URI
@@ -28,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * alias in SREG1.0 and the openid.ns.<ext_alias> namespace declaration
  * in SREG1.1</li>
  * </ul>
- *
+ * <p/>
  * Support for Simple Registration is implemented as follows:
  * <ul>
  * <li>Both SREG1.0 and SREG1.1 are implemented using the same extension
@@ -39,27 +43,23 @@ import org.apache.commons.logging.LogFactory;
  * OpenID 2 messages / SREG1.1</li>
  * </ul>
  *
- * @see Message MessageExtension
  * @author Marius Scurtescu, Johnny Bufu
+ * @see Message MessageExtension
  */
-public class SRegMessage implements MessageExtension, MessageExtensionFactory
-{
-    private static Log _log = LogFactory.getLog(SRegMessage.class);
-    private static final boolean DEBUG = _log.isDebugEnabled();
-
+public class SRegMessage implements MessageExtension, MessageExtensionFactory {
     /**
      * The Simple Registration 1.0 namespace URI.
      */
     public static final String OPENID_NS_SREG = "http://openid.net/sreg/1.0";
-
     /**
      * The Simple Registration 1.1 namespace URI.
      */
     public static final String OPENID_NS_SREG11 = "http://openid.net/extensions/sreg/1.1";
-
+    private static Log _log = LogFactory.getLog(SRegMessage.class);
+    private static final boolean DEBUG = _log.isDebugEnabled();
     /**
      * The Simple Registration extension-specific parameters.
-     * <p>
+     * <p/>
      * The openid.<extension_alias> prefix is not part of the parameter names
      */
     protected ParameterList _parameters;
@@ -70,33 +70,33 @@ public class SRegMessage implements MessageExtension, MessageExtensionFactory
     /**
      * Constructs an empty (no parameters) Simple Registration extension.
      */
-    public SRegMessage()
-    {
+    public SRegMessage() {
         _parameters = new ParameterList();
 
-        if (DEBUG) _log.debug("Created empty SRegMessage.");
+        if (DEBUG) {
+            _log.debug("Created empty SRegMessage.");
+        }
     }
 
     /**
      * Constructs an Simple Registration extension with a specified list of
      * parameters.
-     * <p>
+     * <p/>
      * The parameter names in the list should not contain the
      * openid.<extension_alias>.
      */
-    public SRegMessage(ParameterList params)
-    {
+    public SRegMessage(ParameterList params) {
         _parameters = params;
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Created SRegMessage from parameter list:\n" + params);
+        }
     }
 
     /**
      * Gets the Type URI that identifies the Simple Registration extension.
      */
-    public String getTypeUri()
-    {
+    public String getTypeUri() {
         return _typeUri;
     }
 
@@ -105,73 +105,67 @@ public class SRegMessage implements MessageExtension, MessageExtensionFactory
      * Sets the SREG type URI. Hack to support both SREG 1.0 and 1.1,
      * until 1.1 spec gets fixed.
      */
-    public void setTypeUri(String typeUri)
-    {
+    public void setTypeUri(String typeUri) {
         _typeUri = typeUri;
     }
 
     /**
      * Gets ParameterList containing the Simple Registration extension-specific
      * parameters.
-     * <p>
+     * <p/>
      * The openid.<extension_alias> prefix is not part of the parameter names,
      * as it is handled internally by the Message class.
-     * <p>
+     * <p/>
      * The openid.ns.<extension_type_uri> parameter is also handled by
      * the Message class.
      *
      * @see Message
      */
-    public ParameterList getParameters()
-    {
+    public ParameterList getParameters() {
         return _parameters;
+    }
+
+    /**
+     * Sets the extension's parameters to the supplied list.
+     * <p/>
+     * The parameter names in the list should not contain the
+     * openid.<extension_alias> prefix.
+     */
+    public void setParameters(ParameterList params) {
+        _parameters = params;
     }
 
     /**
      * Gets a the value of the parameter with the specified name.
      *
-     * @param name      The name of the parameter,
-     *                  without the openid.<extension_alias> prefix.
-     * @return          The parameter value, or null if not found.
+     * @param name The name of the parameter,
+     *             without the openid.<extension_alias> prefix.
+     * @return The parameter value, or null if not found.
      */
-    public String getParameterValue(String name)
-    {
+    public String getParameterValue(String name) {
         return _parameters.getParameterValue(name);
-    }
-
-    /**
-     * Sets the extension's parameters to the supplied list.
-     * <p>
-     * The parameter names in the list should not contain the
-     * openid.<extension_alias> prefix.
-     */
-    public void setParameters(ParameterList params)
-    {
-        _parameters = params;
     }
 
     /**
      * Encodes a string value according to the conventions for supporting
      * multiple values for a parameter (commas and backslashes are escaped).
      *
-     * @param       value   String value to be encoded.
-     * @return              The encoded value.
+     * @param value String value to be encoded.
+     * @return The encoded value.
      */
-    public String multivalEncode(String value)
-    {
-        return value.replaceAll("\\\\", "\\\\\\\\").replaceAll(",","\\\\,");
+    public String multivalEncode(String value) {
+        return value.replaceAll("\\\\", "\\\\\\\\").replaceAll(",", "\\\\,");
     }
 
     /**
-    * Decodes a string value according to the conventions for supporting
-    * multiple values for a parameter (commas and backslashes are escaped).
-    *
-    * @param       value   String value to be decoded.
-    * @return              The dencoded value.
-    */
-    public String multivalDecode(String value)
-    {
-        return value.replaceAll("\\\\,", ",").replaceAll("\\\\\\\\","\\\\");
+     * Decodes a string value according to the conventions for supporting
+     * multiple values for a parameter (commas and backslashes are escaped).
+     *
+     * @param value String value to be decoded.
+     * @return The dencoded value.
+     */
+    public String multivalDecode(String value) {
+        return value.replaceAll("\\\\,", ",").replaceAll("\\\\\\\\", "\\\\");
     }
 
     /**
@@ -179,8 +173,7 @@ public class SRegMessage implements MessageExtension, MessageExtensionFactory
      *
      * @return false
      */
-    public boolean providesIdentifier()
-    {
+    public boolean providesIdentifier() {
         return false;
     }
 
@@ -189,8 +182,7 @@ public class SRegMessage implements MessageExtension, MessageExtensionFactory
      *
      * @return true
      */
-    public boolean signRequired()
-    {
+    public boolean signRequired() {
         return true;
     }
 
@@ -199,28 +191,28 @@ public class SRegMessage implements MessageExtension, MessageExtensionFactory
      * Instantiates the apropriate Simple Registration object
      * (request / response) for the supplied parameter list.
      *
-     * @param parameterList         The Simple Registration specific parameters
-     *                              (without the openid.<ext_alias> prefix)
-     *                              extracted from the openid message.
-     * @param isRequest             Indicates whether the parameters were
-     *                              extracted from an OpenID request (true),
-     *                              or from an OpenID response.
-     * @return                      MessageExtension implementation for
-     *                              the supplied extension parameters.
-     * @throws MessageException     If a Simple Registration object could not be
-     *                              instantiated from the supplied parameter list.
+     * @param parameterList The Simple Registration specific parameters
+     *                      (without the openid.<ext_alias> prefix)
+     *                      extracted from the openid message.
+     * @param isRequest     Indicates whether the parameters were
+     *                      extracted from an OpenID request (true),
+     *                      or from an OpenID response.
+     * @return MessageExtension implementation for
+     * the supplied extension parameters.
+     * @throws MessageException If a Simple Registration object could not be
+     *                          instantiated from the supplied parameter list.
      */
     public MessageExtension getExtension(
             ParameterList parameterList, boolean isRequest)
-            throws MessageException
-    {
-        if ( parameterList.hasParameter("required") ||
-             parameterList.hasParameter("optional"))
+            throws MessageException {
+        if (parameterList.hasParameter("required") ||
+            parameterList.hasParameter("optional"))
 
+        {
             return SRegRequest.createSRegRequest(parameterList);
-
-        else
+        } else {
             return SRegResponse.createSRegResponse(parameterList);
+        }
 
     }
 }
