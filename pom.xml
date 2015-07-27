@@ -26,7 +26,7 @@
     <groupId>org.wso2.org.openid4java</groupId>
     <artifactId>openid4java-nodeps-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.6-wso2v5-SNAPSHOT</version>
+    <version>0.9.6-wso2v4-SNAPSHOT</version>
     <name>OpenID4Java Parent</name>
     <description>
         OpenID4Java Parent.
@@ -261,7 +261,7 @@
     <properties>
         <nekohtml.version>1.9.10</nekohtml.version>
         <openxri.version>1.2.0</openxri.version>
-        <openid4java.wso2.version>0.9.6-wso2v5-SNAPSHOT</openid4java.wso2.version>
+        <openid4java.wso2.version>0.9.6-wso2v4-SNAPSHOT</openid4java.wso2.version>
         <orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
         <encoding>UTF-8</encoding>
         <jetty.version>6.0.2</jetty.version>
