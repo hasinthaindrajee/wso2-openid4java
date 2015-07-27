@@ -4,91 +4,70 @@
 
 package org.openid4java.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.OpenIDException;
 import org.openid4java.association.Association;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 /**
  * Load properties from classpath:<code>org.openid4java.util.openid4java-default.properties</code>,
  * then load custom properties from classpath:<code>openid4java.properties</code>
  * to replace the default if exists..
- * 
+ *
  * @author Sutra Zhou
- * 
  */
-public class OpenID4JavaUtils
-{
-    private static Log _log = LogFactory.getLog(OpenID4JavaUtils.class);
-
+public class OpenID4JavaUtils {
     private static final Properties _appProperties;
-
+    private static Log _log = LogFactory.getLog(OpenID4JavaUtils.class);
     //When association is generated,  It would be set as a thread local variable.
-    private static ThreadLocal<Association> threadLocalAssociation = new ThreadLocal<Association> ();
+    private static ThreadLocal<Association> threadLocalAssociation = new ThreadLocal<Association>();
 
-    static
-    {
+    static {
         // Load default properties first, then use custom properties to replace
         // the default.
         _appProperties = new Properties();
         _appProperties.putAll(loadProperties("openid4java-default.properties"));
         Properties custom = loadProperties("/openid4java.properties");
-        if (custom != null)
-        {
+        if (custom != null) {
             _appProperties.putAll(custom);
         }
     }
 
-    private static Properties loadProperties(String name)
-    {
+    private OpenID4JavaUtils() {
+    }
+
+    private static Properties loadProperties(String name) {
         Properties p = null;
         InputStream is = OpenIDException.class.getResourceAsStream(name);
-        if (is != null)
-        {
+        if (is != null) {
             p = new Properties();
-            try
-            {
+            try {
                 p.load(is);
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 _log.error("Load properties from " + name + " failed.", e);
-            }
-            finally
-            {
-                try
-                {
+            } finally {
+                try {
                     is.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     _log.warn("Error closing resource stream.", e);
                 }
             }
-        }
-        else
-        {
+        } else {
             _log.debug("Resource " + name + " not found.");
         }
         return p;
     }
 
-    public static String getProperty(String key)
-    {
+    public static String getProperty(String key) {
         return _appProperties.getProperty(key);
     }
 
-    public static String getProperty(String key, String defaultValue)
-    {
+    public static String getProperty(String key, String defaultValue) {
         return _appProperties.getProperty(key, defaultValue);
-    }
-
-    private OpenID4JavaUtils()
-    {
     }
 
     public static Association getThreadLocalAssociation() {
@@ -101,7 +80,7 @@ public class OpenID4JavaUtils
         threadLocalAssociation.set(association);
     }
 
-    public static void clearThreadLocalAssociation(){
+    public static void clearThreadLocalAssociation() {
         threadLocalAssociation.remove();
     }
 }

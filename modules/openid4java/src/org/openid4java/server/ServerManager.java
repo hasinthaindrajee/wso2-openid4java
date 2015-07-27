@@ -5,31 +5,40 @@
 package org.openid4java.server;
 
 import com.google.inject.Inject;
-
-import org.openid4java.message.*;
-import org.openid4java.util.HttpCache;
-import org.openid4java.util.HttpFetcherFactory;
-import org.openid4java.association.AssociationSessionType;
-import org.openid4java.association.AssociationException;
-import org.openid4java.association.DiffieHellmanSession;
-import org.openid4java.association.Association;
-import org.openid4java.discovery.yadis.YadisResolver;
-import org.openid4java.OpenIDException;
-
-import java.net.URL;
-import java.net.MalformedURLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.OpenIDException;
+import org.openid4java.association.Association;
+import org.openid4java.association.AssociationException;
+import org.openid4java.association.AssociationSessionType;
+import org.openid4java.association.DiffieHellmanSession;
+import org.openid4java.discovery.yadis.YadisResolver;
+import org.openid4java.message.AssociationError;
+import org.openid4java.message.AssociationRequest;
+import org.openid4java.message.AssociationResponse;
+import org.openid4java.message.AuthFailure;
+import org.openid4java.message.AuthImmediateFailure;
+import org.openid4java.message.AuthRequest;
+import org.openid4java.message.AuthSuccess;
+import org.openid4java.message.DirectError;
+import org.openid4java.message.IndirectError;
+import org.openid4java.message.Message;
+import org.openid4java.message.MessageException;
+import org.openid4java.message.ParameterList;
+import org.openid4java.message.VerifyRequest;
+import org.openid4java.message.VerifyResponse;
+import org.openid4java.util.HttpFetcherFactory;
 import org.openid4java.util.OpenID4JavaUtils;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Manages OpenID communications with an OpenID Relying Party (Consumer).
  *
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class ServerManager
-{
+public class ServerManager {
     private static Log _log = LogFactory.getLog(ServerManager.class);
     private static final boolean DEBUG = _log.isDebugEnabled();
 
@@ -74,7 +83,7 @@ public class ServerManager
      * In OpenID 1.x compatibility mode, the URL at the OpenID Provider where
      * the user should be directed when a immediate authentication request
      * fails.
-     * <p>
+     * <p/>
      * MUST be configured in order for the OpenID provider to be able to
      * respond correctly with AuthImmediateFailure messages in compatibility
      * mode.
@@ -100,7 +109,7 @@ public class ServerManager
     /**
      * The OpenID Provider's endpoint URL, where it accepts OpenID
      * authentication requests.
-     * <p>
+     * <p/>
      * This is a global setting for the ServerManager; can also be set on a
      * per message basis.
      *
@@ -110,13 +119,26 @@ public class ServerManager
 
 
     /**
+     * Constructs a ServerManager with default settings.
+     */
+    public ServerManager() {
+        this(new RealmVerifierFactory(new YadisResolver(new HttpFetcherFactory())));
+    }
+
+    @Inject
+    public ServerManager(RealmVerifierFactory factory) {
+        // initialize a default realm verifier
+        _realmVerifier = factory.getRealmVerifierForServer();
+        _realmVerifier.setEnforceRpId(false);
+    }
+
+    /**
      * Gets the store implementation used for keeping track of the generated
      * associations established with consumer sites.
      *
      * @see ServerAssociationStore
      */
-    public ServerAssociationStore getSharedAssociations()
-    {
+    public ServerAssociationStore getSharedAssociations() {
         return _sharedAssociations;
     }
 
@@ -124,11 +146,10 @@ public class ServerManager
      * Sets the store implementation that will be used for keeping track of
      * the generated associations established with consumer sites.
      *
-     * @param sharedAssociations       ServerAssociationStore implementation
+     * @param sharedAssociations ServerAssociationStore implementation
      * @see ServerAssociationStore
      */
-    public void setSharedAssociations(ServerAssociationStore sharedAssociations)
-    {
+    public void setSharedAssociations(ServerAssociationStore sharedAssociations) {
         _sharedAssociations = sharedAssociations;
     }
 
@@ -139,8 +160,7 @@ public class ServerManager
      *
      * @see ServerAssociationStore
      */
-    public ServerAssociationStore getPrivateAssociations()
-    {
+    public ServerAssociationStore getPrivateAssociations() {
         return _privateAssociations;
     }
 
@@ -149,22 +169,30 @@ public class ServerManager
      * the generated private associations (used for signing responses to
      * stateless consumer sites).
      *
-     * @param privateAssociations       ServerAssociationStore implementation
+     * @param privateAssociations ServerAssociationStore implementation
      * @see ServerAssociationStore
      */
-    public void setPrivateAssociations(ServerAssociationStore privateAssociations)
-    {
+    public void setPrivateAssociations(ServerAssociationStore privateAssociations) {
         _privateAssociations = privateAssociations;
     }
 
     /**
      * Gets the minimum level of encryption configured for association sessions.
-     * <p>
+     * <p/>
      * Default: no-encryption session, SHA1 MAC association
      */
-    public AssociationSessionType getMinAssocSessEnc()
-    {
+    public AssociationSessionType getMinAssocSessEnc() {
         return _minAssocSessEnc;
+    }
+
+    /**
+     * Configures the minimum level of encryption accepted for association
+     * sessions.
+     * <p/>
+     * Default: no-encryption session, SHA1 MAC association
+     */
+    public void setMinAssocSessEnc(AssociationSessionType minAssocSessEnc) {
+        this._minAssocSessEnc = minAssocSessEnc;
     }
 
     /**
@@ -173,8 +201,7 @@ public class ServerManager
      *
      * @see NonceGenerator
      */
-    public NonceGenerator getNonceGenerator()
-    {
+    public NonceGenerator getNonceGenerator() {
         return _nonceGenerator;
     }
 
@@ -184,27 +211,14 @@ public class ServerManager
      *
      * @see NonceGenerator
      */
-    public void setNonceGenerator(NonceGenerator nonceGenerator)
-    {
+    public void setNonceGenerator(NonceGenerator nonceGenerator) {
         _nonceGenerator = nonceGenerator;
-    }
-
-    /**
-     * Configures the minimum level of encryption accepted for association
-     * sessions.
-     * <p>
-     * Default: no-encryption session, SHA1 MAC association
-     */
-    public void setMinAssocSessEnc(AssociationSessionType minAssocSessEnc)
-    {
-        this._minAssocSessEnc = minAssocSessEnc;
     }
 
     /**
      * Gets the preferred association / session type.
      */
-    public AssociationSessionType getPrefAssocSessEnc()
-    {
+    public AssociationSessionType getPrefAssocSessEnc() {
         return _prefAssocSessEnc;
     }
 
@@ -214,16 +228,17 @@ public class ServerManager
      * @see AssociationSessionType
      */
     public void setPrefAssocSessEnc(AssociationSessionType type)
-            throws ServerException
-    {
-        if (! Association.isHmacSupported(type.getAssociationType()) ||
-            ! DiffieHellmanSession.isDhSupported(type) )
+            throws ServerException {
+        if (!Association.isHmacSupported(type.getAssociationType()) ||
+            !DiffieHellmanSession.isDhSupported(type)) {
             throw new ServerException("Unsupported association / session type: "
-            + type.getSessionType() + " : " + type.getAssociationType());
+                                      + type.getSessionType() + " : " + type.getAssociationType());
+        }
 
-        if (_minAssocSessEnc.isBetter(type) )
+        if (_minAssocSessEnc.isBetter(type)) {
             throw new ServerException(
                     "Minimum encryption settings cannot be better than the preferred");
+        }
 
         this._prefAssocSessEnc = type;
     }
@@ -231,16 +246,14 @@ public class ServerManager
     /**
      * Gets the expiration time (in seconds) for the generated associations
      */
-    public int getExpireIn()
-    {
+    public int getExpireIn() {
         return _expireIn;
     }
 
     /**
      * Sets the expiration time (in seconds) for the generated associations
      */
-    public void setExpireIn(int _expireIn)
-    {
+    public void setExpireIn(int _expireIn) {
         this._expireIn = _expireIn;
     }
 
@@ -248,8 +261,7 @@ public class ServerManager
      * Gets the URL at the OpenID Provider where the user should be directed
      * when a immediate authentication request fails.
      */
-    public String getUserSetupUrl()
-    {
+    public String getUserSetupUrl() {
         return _userSetupUrl;
     }
 
@@ -257,69 +269,60 @@ public class ServerManager
      * Sets the URL at the OpenID Provider where the user should be directed
      * when a immediate authentication request fails.
      */
-    public void setUserSetupUrl(String userSetupUrl)
-    {
+    public void setUserSetupUrl(String userSetupUrl) {
         this._userSetupUrl = userSetupUrl;
-    }
-
-    /**
-     * Sets the list of parameters that the OpenID Provider will sign when
-     * generating authentication responses.
-     * <p>
-     * The fields in the list must be coma-separated and must not include the
-     * 'openid.' prefix. Fields that are required to be signed are automatically
-     * added by the underlying logic, so that a valid message is generated,
-     * regardles if they are included in the user-supplied list or not.
-     */
-    public void setSignFields(String signFields)
-    {
-        this._signFields = signFields;
     }
 
     /**
      * Gets the list of parameters that the OpenID Provider will sign when
      * generating authentication responses.
-     * <p>
+     * <p/>
      * Coma-separated list.
      */
-    public String getSignFields()
-    {
+    public String getSignFields() {
         return _signFields;
     }
 
-    public void setSignExtensions(String[] extensins)
-    {
-        _signExtensions = extensins;
+    /**
+     * Sets the list of parameters that the OpenID Provider will sign when
+     * generating authentication responses.
+     * <p/>
+     * The fields in the list must be coma-separated and must not include the
+     * 'openid.' prefix. Fields that are required to be signed are automatically
+     * added by the underlying logic, so that a valid message is generated,
+     * regardles if they are included in the user-supplied list or not.
+     */
+    public void setSignFields(String signFields) {
+        this._signFields = signFields;
     }
 
-    public String[] getSignExtensions()
-    {
+    public String[] getSignExtensions() {
         return _signExtensions;
+    }
+
+    public void setSignExtensions(String[] extensins) {
+        _signExtensions = extensins;
     }
 
     /**
      * Gets the RealmVerifier used to verify realms against return_to URLs.
      */
-    public RealmVerifier getRealmVerifier()
-    {
+    public RealmVerifier getRealmVerifier() {
         return _realmVerifier;
     }
 
     /**
      * Sets the RealmVerifier used to verify realms against return_to URLs.
      */
-    public void setRealmVerifier(RealmVerifier realmVerifier)
-    {
+    public void setRealmVerifier(RealmVerifier realmVerifier) {
         this._realmVerifier = realmVerifier;
     }
-
 
     /**
      * Gets the flag that instructs the realm verifier to enforce validation
      * of the return URL agains the endpoints discovered from the RP's realm.
      */
-    public boolean getEnforceRpId()
-    {
+    public boolean getEnforceRpId() {
         return _realmVerifier.getEnforceRpId();
     }
 
@@ -327,54 +330,35 @@ public class ServerManager
      * Sets the flag that instructs the realm verifier to enforce validation
      * of the return URL agains the endpoints discovered from the RP's realm.
      */
-    public void setEnforceRpId(boolean enforceRpId)
-    {
+    public void setEnforceRpId(boolean enforceRpId) {
         _realmVerifier.setEnforceRpId(enforceRpId);
     }
 
     /**
      * Gets OpenID Provider's endpoint URL, where it accepts OpenID
      * authentication requests.
-     * <p>
+     * <p/>
      * This is a global setting for the ServerManager; can also be set on a
      * per message basis.
      *
      * @see #authResponse(org.openid4java.message.ParameterList, String, String, boolean, String)
      */
-    public String getOPEndpointUrl()
-    {
+    public String getOPEndpointUrl() {
         return _opEndpointUrl;
     }
 
     /**
      * Sets the OpenID Provider's endpoint URL, where it accepts OpenID
      * authentication requests.
-     * <p>
+     * <p/>
      * This is a global setting for the ServerManager; can also be set on a
      * per message basis.
      *
      * @see #authResponse(org.openid4java.message.ParameterList, String, String, boolean, String)
      */
-    public void setOPEndpointUrl(String opEndpointUrl)
-    {
+    public void setOPEndpointUrl(String opEndpointUrl) {
         this._opEndpointUrl = opEndpointUrl;
     }
-
-    /**
-     * Constructs a ServerManager with default settings.
-     */
-    public ServerManager() {
-      this(new RealmVerifierFactory(new YadisResolver(new HttpFetcherFactory())));
-    }
-
-    @Inject
-    public ServerManager(RealmVerifierFactory factory)
-    {
-        // initialize a default realm verifier
-        _realmVerifier = factory.getRealmVerifierForServer();
-        _realmVerifier.setEnforceRpId(false);
-    }
-
 
     /**
      * Processes a Association Request and returns a Association Response
@@ -382,18 +366,15 @@ public class ServerManager
      * configured for the OpenID Provider
      *
      * @return AssociationResponse      upon successfull association,
-     *                                  or AssociationError if no association
-     *                                  was established
-     *
+     * or AssociationError if no association
+     * was established
      */
-    public Message associationResponse(ParameterList requestParams)
-    {
+    public Message associationResponse(ParameterList requestParams) {
         boolean isVersion2 = requestParams.hasParameter("openid.ns");
 
         _log.info("Processing association request...");
 
-        try
-        {
+        try {
             // build request message from response params (+ integrity check)
             AssociationRequest assocReq =
                     AssociationRequest.createAssociationRequest(requestParams);
@@ -403,15 +384,13 @@ public class ServerManager
             AssociationSessionType type = assocReq.getType();
 
             // is supported / allowed ?
-            if (! Association.isHmacSupported(type.getAssociationType()) ||
-                    ! DiffieHellmanSession.isDhSupported(type) ||
-                    _minAssocSessEnc.isBetter(type))
-            {
+            if (!Association.isHmacSupported(type.getAssociationType()) ||
+                !DiffieHellmanSession.isDhSupported(type) ||
+                _minAssocSessEnc.isBetter(type)) {
                 throw new AssociationException("Unable create association for: "
-                        + type.getSessionType() + " / "
-                        + type.getAssociationType() );
-            }
-            else // all ok, go ahead
+                                               + type.getSessionType() + " / "
+                                               + type.getAssociationType());
+            } else // all ok, go ahead
             {
                 Association assoc = _sharedAssociations.generate(
                         type.getAssociationType(), _expireIn);
@@ -420,25 +399,19 @@ public class ServerManager
 
                 return AssociationResponse.createAssociationResponse(assocReq, assoc);
             }
-        }
-        catch (OpenIDException e)
-        {
+        } catch (OpenIDException e) {
             // association failed, respond accordingly
-            if (isVersion2)
-            {
+            if (isVersion2) {
                 _log.warn("Cannot establish association, " +
-                           "responding with an OpenID2 association error.", e);
+                          "responding with an OpenID2 association error.", e);
 
                 return AssociationError.createAssociationError(
                         e.getMessage(), _prefAssocSessEnc);
-            }
-            else
-            {
+            } else {
                 _log.warn("Error processing an OpenID1 association request: " +
                           e.getMessage() +
                           " Responding with a dummy association.", e);
-                try
-                {
+                try {
                     // generate dummy association & no-encryption response
                     // for compatibility mode
                     Association dummyAssoc = _sharedAssociations.generate(
@@ -446,14 +419,12 @@ public class ServerManager
 
                     AssociationRequest dummyRequest =
                             AssociationRequest.createAssociationRequest(
-                            AssociationSessionType.NO_ENCRYPTION_COMPAT_SHA1MAC);
+                                    AssociationSessionType.NO_ENCRYPTION_COMPAT_SHA1MAC);
 
 
                     return AssociationResponse.createAssociationResponse(
                             dummyRequest, dummyAssoc);
-                }
-                catch (OpenIDException ee)
-                {
+                } catch (OpenIDException ee) {
                     _log.error("Error creating negative OpenID1 association response.", e);
                     return null;
                 }
@@ -465,174 +436,161 @@ public class ServerManager
 
     /**
      * Processes a Authentication Request received from a consumer site.
-     * <p>
+     * <p/>
      * Uses ServerManager's global OpenID Provider endpoint URL.
      *
-     * @return      An signed positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return An signed positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.ParameterList, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(ParameterList requestParams,
                                 String userSelId,
                                 String userSelClaimed,
-                                boolean authenticatedAndApproved)
-    {
+                                boolean authenticatedAndApproved) {
         return authResponse(requestParams, userSelId, userSelClaimed,
-                authenticatedAndApproved, _opEndpointUrl, true);
+                            authenticatedAndApproved, _opEndpointUrl, true);
 
     }
 
     /**
      * Processes a Authentication Request received from a consumer site.
-     * <p>
+     * <p/>
      * Uses ServerManager's global OpenID Provider endpoint URL.
      *
-     * @return      A signed positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return A signed positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.AuthRequest, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(AuthRequest authReq,
                                 String userSelId,
                                 String userSelClaimed,
-                                boolean authenticatedAndApproved)
-    {
+                                boolean authenticatedAndApproved) {
         return authResponse(authReq, userSelId, userSelClaimed,
-                authenticatedAndApproved, _opEndpointUrl, true);
+                            authenticatedAndApproved, _opEndpointUrl, true);
 
     }
 
     /**
      * Processes a Authentication Request received from a consumer site.
-     * <p>
+     * <p/>
      * Uses ServerManager's global OpenID Provider endpoint URL.
      *
-     * @return      A positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return A positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.ParameterList, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(ParameterList requestParams,
                                 String userSelId,
                                 String userSelClaimed,
                                 boolean authenticatedAndApproved,
-                                boolean signNow)
-    {
+                                boolean signNow) {
         return authResponse(requestParams, userSelId, userSelClaimed,
-                authenticatedAndApproved, _opEndpointUrl, signNow);
+                            authenticatedAndApproved, _opEndpointUrl, signNow);
 
     }
 
     /**
      * Processes a Authentication Request received from a consumer site.
-     * <p>
+     * <p/>
      * Uses ServerManager's global OpenID Provider endpoint URL.
      *
-     * @return      A positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return A positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.AuthRequest, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(AuthRequest authReq,
                                 String userSelId,
                                 String userSelClaimed,
                                 boolean authenticatedAndApproved,
-                                boolean signNow)
-    {
+                                boolean signNow) {
         return authResponse(authReq, userSelId, userSelClaimed,
-                authenticatedAndApproved, _opEndpointUrl, signNow);
+                            authenticatedAndApproved, _opEndpointUrl, signNow);
 
     }
 
     /**
      * Processes a Authentication Request received from a consumer site.
-     * <p>
+     * <p/>
      *
-     * @return      A signed positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return A signed positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.ParameterList, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(ParameterList requestParams,
                                 String userSelId,
                                 String userSelClaimed,
                                 boolean authenticatedAndApproved,
-                                String opEndpoint)
-    {
+                                String opEndpoint) {
         return authResponse(requestParams, userSelId, userSelClaimed,
-                authenticatedAndApproved, opEndpoint, true);
+                            authenticatedAndApproved, opEndpoint, true);
     }
 
     /**
      * Processes a Authentication Request received from a consumer site.
-     * <p>
+     * <p/>
      *
-     * @return      A signed positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return A signed positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.AuthRequest, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(AuthRequest auhtReq,
                                 String userSelId,
                                 String userSelClaimed,
                                 boolean authenticatedAndApproved,
-                                String opEndpoint)
-    {
+                                String opEndpoint) {
         return authResponse(auhtReq, userSelId, userSelClaimed,
-                authenticatedAndApproved, opEndpoint, true);
+                            authenticatedAndApproved, opEndpoint, true);
     }
 
     /**
      * Processes a Authentication Request received from a consumer site,
      * after parsing the request parameters into a valid AuthRequest.
-     * <p>
+     * <p/>
      *
-     * @return      A signed positive Authentication Response if successfull,
-     *              or an IndirectError / DirectError message.
+     * @return A signed positive Authentication Response if successfull,
+     * or an IndirectError / DirectError message.
      * @see #authResponse(org.openid4java.message.AuthRequest, String, String,
-     *                    boolean, String, boolean)
+     * boolean, String, boolean)
      */
     public Message authResponse(ParameterList requestParams,
                                 String userSelId,
                                 String userSelClaimed,
                                 boolean authenticatedAndApproved,
                                 String opEndpoint,
-                                boolean signNow)
-    {
+                                boolean signNow) {
         _log.info("Parsing authentication request...");
 
         AuthRequest authReq;
 
         boolean isVersion2 = Message.OPENID2_NS.equals(
-                                requestParams.getParameterValue("openid.ns"));
+                requestParams.getParameterValue("openid.ns"));
 
-        try
-        {
+        try {
             // build request message from response params (+ integrity check)
             authReq = AuthRequest.createAuthRequest(
-                requestParams, _realmVerifier);
+                    requestParams, _realmVerifier);
 
             return authResponse(authReq, userSelId, userSelClaimed,
                                 authenticatedAndApproved, opEndpoint, signNow);
-        }
-        catch (MessageException e)
-        {
-            if (requestParams.hasParameter("openid.return_to"))
-            {
+        } catch (MessageException e) {
+            if (requestParams.hasParameter("openid.return_to")) {
                 _log.error("Invalid authentication request; " +
                            "responding with an indirect error message.", e);
 
                 return IndirectError.createIndirectError(e,
-                        requestParams.getParameterValue("openid.return_to"),
-                        ! isVersion2 );
-            }
-            else
-            {
+                                                         requestParams.getParameterValue("openid.return_to"),
+                                                         !isVersion2);
+            } else {
                 _log.error("Invalid authentication request; " +
                            "responding with a direct error message.", e);
 
-                return DirectError.createDirectError( e, ! isVersion2 );
+                return DirectError.createDirectError(e, !isVersion2);
             }
         }
     }
@@ -640,62 +598,55 @@ public class ServerManager
     /**
      * Processes a Authentication Request received from a consumer site.
      *
-     * @param opEndpoint        The endpoint URL where the OP accepts OpenID
-     *                          authentication requests.
-     * @param authReq           A valid authentication request.
-     * @param userSelId         OP-specific Identifier selected by the user at
-     *                          the OpenID Provider; if present it will override
-     *                          the one received in the authentication request.
-     * @param userSelClaimed    Claimed Identifier selected by the user at
-     *                          the OpenID Provider; if present it will override
-     *                          the one received in the authentication request.
-     * @param authenticatedAndApproved  Flag indicating that the OP has
-     *                                  authenticated the user and the user
-     *                                  has approved the authentication
-     *                                  transaction
-     * @param signNow           If true, the returned AuthSuccess will be signed.
-     *                          If false, the signature will not be computed and
-     *                          set - this will have to be performed later,
-     *                          using #sign(org.openid4java.message.Message).
-     *
-     * @return                  <ul><li> AuthSuccess, if authenticatedAndApproved
-     *                          <li> AuthFailure (negative response) if either
-     *                          of authenticatedAndApproved is false;
-     *                          <li> A IndirectError or DirectError message
-     *                          if the authentication could not be performed, or
-     *                          <li> Null if there was no return_to parameter
-     *                          specified in the AuthRequest.</ul>
+     * @param opEndpoint               The endpoint URL where the OP accepts OpenID
+     *                                 authentication requests.
+     * @param authReq                  A valid authentication request.
+     * @param userSelId                OP-specific Identifier selected by the user at
+     *                                 the OpenID Provider; if present it will override
+     *                                 the one received in the authentication request.
+     * @param userSelClaimed           Claimed Identifier selected by the user at
+     *                                 the OpenID Provider; if present it will override
+     *                                 the one received in the authentication request.
+     * @param authenticatedAndApproved Flag indicating that the OP has
+     *                                 authenticated the user and the user
+     *                                 has approved the authentication
+     *                                 transaction
+     * @param signNow                  If true, the returned AuthSuccess will be signed.
+     *                                 If false, the signature will not be computed and
+     *                                 set - this will have to be performed later,
+     *                                 using #sign(org.openid4java.message.Message).
+     * @return <ul><li> AuthSuccess, if authenticatedAndApproved
+     * <li> AuthFailure (negative response) if either
+     * of authenticatedAndApproved is false;
+     * <li> A IndirectError or DirectError message
+     * if the authentication could not be performed, or
+     * <li> Null if there was no return_to parameter
+     * specified in the AuthRequest.</ul>
      */
     public Message authResponse(AuthRequest authReq,
                                 String userSelId,
                                 String userSelClaimed,
                                 boolean authenticatedAndApproved,
                                 String opEndpoint,
-                                boolean signNow)
-    {
+                                boolean signNow) {
         _log.info("Processing authentication request...");
 
         boolean isVersion2 = authReq.isVersion2();
 
-        try
-        {
+        try {
             new URL(opEndpoint);
-        }
-        catch (MalformedURLException e)
-        {
+        } catch (MalformedURLException e) {
             String errMsg = "Invalid OP-endpoint configured; " +
-                  "cannot issue authentication responses." + opEndpoint;
+                            "cannot issue authentication responses." + opEndpoint;
 
             _log.error(errMsg, e);
 
             return DirectError.createDirectError(
-                new ServerException(errMsg, e), isVersion2);
+                    new ServerException(errMsg, e), isVersion2);
         }
 
-        try
-        {
-            if (authReq.getReturnTo() == null)
-            {
+        try {
+            if (authReq.getReturnTo() == null) {
                 _log.error("No return_to in the received (valid) auth request; "
                            + "returning null auth response.");
                 return null;
@@ -704,25 +655,25 @@ public class ServerManager
             String id;
             String claimed;
 
-            if (AuthRequest.SELECT_ID.equals(authReq.getIdentity()))
-            {
+            if (AuthRequest.SELECT_ID.equals(authReq.getIdentity())) {
                 id = userSelId;
                 claimed = userSelClaimed;
-            }
-            else
-            {
+            } else {
                 id = userSelId != null ? userSelId : authReq.getIdentity();
                 claimed = userSelClaimed != null ? userSelClaimed :
-                        authReq.getClaimed();
+                          authReq.getClaimed();
             }
 
-            if (id == null)
+            if (id == null) {
                 throw new ServerException(
                         "No identifier provided by the authntication request" +
                         "or by the OpenID Provider");
+            }
 
-            if (DEBUG) _log.debug("Using ClaimedID: " + claimed +
-                                  " OP-specific ID: " + id);
+            if (DEBUG) {
+                _log.debug("Using ClaimedID: " + claimed +
+                           " OP-specific ID: " + id);
+            }
 
             if (authenticatedAndApproved) // positive response
             {
@@ -730,20 +681,17 @@ public class ServerManager
                 String handle = authReq.getHandle();
                 String invalidateHandle = null;
 
-                if (handle != null)
-                {
+                if (handle != null) {
                     assoc = _sharedAssociations.load(handle);
-                    if (assoc == null)
-                    {
+                    if (assoc == null) {
                         _log.info("Invalidating handle: " + handle);
                         invalidateHandle = handle;
-                    }
-                    else
+                    } else {
                         _log.info("Loaded shared association; handle: " + handle);
+                    }
                 }
 
-                if (assoc == null)
-                {
+                if (assoc == null) {
                     assoc = _privateAssociations.generate(
                             _prefAssocSessEnc.getAssociationType(),
                             _expireIn);
@@ -753,29 +701,30 @@ public class ServerManager
                 }
 
                 AuthSuccess response = AuthSuccess.createAuthSuccess(
-                            opEndpoint, claimed, id, !isVersion2,
-                            authReq.getReturnTo(),
-                            isVersion2 ? _nonceGenerator.next() : null,
-                            invalidateHandle, assoc, false);
+                        opEndpoint, claimed, id, !isVersion2,
+                        authReq.getReturnTo(),
+                        isVersion2 ? _nonceGenerator.next() : null,
+                        invalidateHandle, assoc, false);
 
-                if (_signFields != null)
+                if (_signFields != null) {
                     response.setSignFields(_signFields);
+                }
 
-                if (_signExtensions != null)
+                if (_signExtensions != null) {
                     response.setSignExtensions(_signExtensions);
+                }
 
-                if (signNow)
+                if (signNow) {
                     response.setSignature(assoc.sign(response.getSignedText()));
+                }
 
                 _log.info("Returning positive assertion for " +
                           response.getReturnTo());
 
                 return response;
-            }
-            else // negative response
+            } else // negative response
             {
-                if (authReq.isImmediate())
-                {
+                if (authReq.isImmediate()) {
                     _log.error("Responding with immediate authentication " +
                                "failure to " + authReq.getReturnTo());
 
@@ -784,35 +733,28 @@ public class ServerManager
                     String separator = _userSetupUrl.contains("?") ? "&" : "?";
 
                     return AuthImmediateFailure.createAuthImmediateFailure(
-                        _userSetupUrl + separator + authReq.wwwFormEncoding(),
-                        authReq.getReturnTo(), ! isVersion2);
-                }
-                else
-                {
+                            _userSetupUrl + separator + authReq.wwwFormEncoding(),
+                            authReq.getReturnTo(), !isVersion2);
+                } else {
                     _log.error("Responding with authentication failure to " +
                                authReq.getReturnTo());
 
-                    return new AuthFailure(! isVersion2, authReq.getReturnTo());
+                    return new AuthFailure(!isVersion2, authReq.getReturnTo());
                 }
             }
-        }
-        catch (OpenIDException e)
-        {
-            if (authReq.hasParameter("openid.return_to"))
-            {
+        } catch (OpenIDException e) {
+            if (authReq.hasParameter("openid.return_to")) {
                 _log.error("Error processing authentication request; " +
                            "responding with an indirect error message.", e);
 
                 return IndirectError.createIndirectError(e,
-                        authReq.getReturnTo(),
-                        ! isVersion2 );
-            }
-            else
-            {
+                                                         authReq.getReturnTo(),
+                                                         !isVersion2);
+            } else {
                 _log.error("Error processing authentication request; " +
                            "responding with a direct error message.", e);
 
-                return DirectError.createDirectError( e, ! isVersion2 );
+                return DirectError.createDirectError(e, !isVersion2);
             }
         }
     }
@@ -821,23 +763,20 @@ public class ServerManager
      * Signs an AuthSuccess message, using the association identified by the
      * handle specified within the message.
      *
-     * @param   authSuccess     The Authentication Success message to be signed.
-     *
-     * @throws  ServerException If the Association corresponding to the handle
-     *                          in the @authSuccess cannot be retrieved from
-     *                          the store.
-     * @throws  AssociationException    If the signature cannot be computed.
-     *
+     * @param authSuccess The Authentication Success message to be signed.
+     * @throws ServerException      If the Association corresponding to the handle
+     *                              in the @authSuccess cannot be retrieved from
+     *                              the store.
+     * @throws AssociationException If the signature cannot be computed.
      */
     public void sign(AuthSuccess authSuccess)
-        throws ServerException, AssociationException
-    {
+            throws ServerException, AssociationException {
         String handle = authSuccess.getHandle();
 
         Association assoc = null;
-        try{
+        try {
             // First try in thread local
-            assoc =  OpenID4JavaUtils.getThreadLocalAssociation();
+            assoc = OpenID4JavaUtils.getThreadLocalAssociation();
         } finally {
             // Clear thread local
             OpenID4JavaUtils.clearThreadLocalAssociation();
@@ -852,8 +791,10 @@ public class ServerManager
             assoc = _privateAssociations.load(handle);
         }
 
-        if (assoc == null) throw new ServerException(
-                "No association found for handle: " + handle);
+        if (assoc == null) {
+            throw new ServerException(
+                    "No association found for handle: " + handle);
+        }
 
         authSuccess.setSignature(assoc.sign(authSuccess.getSignedText()));
     }
@@ -861,20 +802,18 @@ public class ServerManager
     /**
      * Responds to a verification request from the consumer.
      *
-     * @param requestParams     ParameterList containing the parameters received
-     *                          in a verification request from a consumer site.
-     * @return                  VerificationResponse to be sent back to the
-     *                          consumer site.
+     * @param requestParams ParameterList containing the parameters received
+     *                      in a verification request from a consumer site.
+     * @return VerificationResponse to be sent back to the
+     * consumer site.
      */
-    public Message verify(ParameterList requestParams)
-    {
+    public Message verify(ParameterList requestParams) {
         _log.info("Processing verification request...");
 
         boolean isVersion2 = true;
         String sigMod = null;
 
-        try
-        {
+        try {
             // build request message from response params (+ ntegrity check)
             VerifyRequest vrfyReq = VerifyRequest.createVerifyRequest(requestParams);
             isVersion2 = vrfyReq.isVersion2();
@@ -885,7 +824,7 @@ public class ServerManager
             Association assoc = _privateAssociations.load(handle);
             if (assoc != null) // verify the signature
             {
-                if(DEBUG) {
+                if (DEBUG) {
                     _log.debug("Loaded private association; handle: " + handle);
                 }
                 sigMod = vrfyReq.getSignature().replaceAll("\\s", "+");
@@ -899,40 +838,36 @@ public class ServerManager
             }
 
             VerifyResponse vrfyResp =
-                    VerifyResponse.createVerifyResponse(! vrfyReq.isVersion2());
+                    VerifyResponse.createVerifyResponse(!vrfyReq.isVersion2());
 
             vrfyResp.setSignatureVerified(verified);
 
-            if (verified)
-            {
+            if (verified) {
                 String invalidateHandle = vrfyReq.getInvalidateHandle();
                 if (invalidateHandle != null &&
-                        _sharedAssociations.load(invalidateHandle) == null) {
+                    _sharedAssociations.load(invalidateHandle) == null) {
                     if (DEBUG) {
                         _log.debug("Confirming shared association invalidate handle: " + invalidateHandle);
                     }
 
                     vrfyResp.setInvalidateHandle(invalidateHandle);
                 }
-            }
-            else {
+            } else {
                 _log.error("Signature verification failed. handle : " + handle +
-                        " , signed text : " + vrfyReq.getSignedText() +
-                        " , signature : " + sigMod);
+                           " , signed text : " + vrfyReq.getSignedText() +
+                           " , signature : " + sigMod);
             }
 
-            if(DEBUG) {
+            if (DEBUG) {
                 _log.debug("Responding with " + (verified ? "positive" : "negative") + " verification response");
             }
 
             return vrfyResp;
-        }
-        catch (OpenIDException e)
-        {
+        } catch (OpenIDException e) {
             _log.error("Error processing verification request; " +
                        "responding with verification error.", e);
 
-            return DirectError.createDirectError(e, ! isVersion2);
+            return DirectError.createDirectError(e, !isVersion2);
         }
     }
 }

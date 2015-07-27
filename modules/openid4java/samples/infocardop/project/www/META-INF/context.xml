@@ -2,9 +2,9 @@
 <Context path="/op">
 
     <Resource name="jdbc/infocardop_local" auth="Container" type="javax.sql.DataSource"
-                   maxActive="100" maxIdle="30" maxWait="10000"
-                   username="infocardop" password="infocardop" driverClassName="com.mysql.jdbc.Driver"
-                   url="jdbc:mysql://localhost/infocardop?autoReconnect=true"/>
+              maxActive="100" maxIdle="30" maxWait="10000"
+              username="infocardop" password="infocardop" driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://localhost/infocardop?autoReconnect=true"/>
 
     <ResourceLink global="jdbc/infocardop" name="jdbc/infocardop"
                   type="javax.sql.DataSource"/>

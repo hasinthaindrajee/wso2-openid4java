@@ -10,8 +10,7 @@ import com.google.inject.ImplementedBy;
  * @author Marius Scurtescu, Johnny Bufu
  */
 @ImplementedBy(InMemoryNonceVerifier.class)
-public interface NonceVerifier
-{
+public interface NonceVerifier {
     /**
      * This noce is valid and it was not seen before. Nonce should be accepted.
      */

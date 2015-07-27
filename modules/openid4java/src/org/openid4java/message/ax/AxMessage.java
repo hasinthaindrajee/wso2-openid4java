@@ -4,13 +4,17 @@
 
 package org.openid4java.message.ax;
 
-import org.openid4java.message.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.message.Message;
+import org.openid4java.message.MessageException;
+import org.openid4java.message.MessageExtension;
+import org.openid4java.message.MessageExtensionFactory;
+import org.openid4java.message.ParameterList;
 
 /**
  * Base class for the Attribute Exchange implementation.
- * <p>
+ * <p/>
  * Encapsulates:
  * <ul>
  * <li> the Type URI that identifies the Attribute Exchange extension
@@ -20,22 +24,19 @@ import org.apache.commons.logging.LogFactory;
  * multpile values
  * </ul>
  *
- * @see Message MessageExtension
  * @author Marius Scurtescu, Johnny Bufu
+ * @see Message MessageExtension
  */
-public class AxMessage implements MessageExtension, MessageExtensionFactory
-{
-    private static Log _log = LogFactory.getLog(AxMessage.class);
-    private static final boolean DEBUG = _log.isDebugEnabled();
-
+public class AxMessage implements MessageExtension, MessageExtensionFactory {
     /**
      * The Attribute Exchange Type URI.
      */
     public static final String OPENID_NS_AX = "http://openid.net/srv/ax/1.0";
-
+    private static Log _log = LogFactory.getLog(AxMessage.class);
+    private static final boolean DEBUG = _log.isDebugEnabled();
     /**
      * The Attribute Exchange extension-specific parameters.
-     * <p>
+     * <p/>
      * The openid.<extension_alias> prefix is not part of the parameter names
      */
     protected ParameterList _parameters;
@@ -43,74 +44,71 @@ public class AxMessage implements MessageExtension, MessageExtensionFactory
     /**
      * Constructs an empty (no parameters) Attribute Exchange extension.
      */
-    public AxMessage()
-    {
+    public AxMessage() {
         _parameters = new ParameterList();
 
-        if (DEBUG) _log.debug("Created empty AXMessage.");
+        if (DEBUG) {
+            _log.debug("Created empty AXMessage.");
+        }
     }
 
     /**
      * Constructs an Attribute Exchange extension with a specified list of
      * parameters.
-     * <p>
+     * <p/>
      * The parameter names in the list should not contain the
      * openid.<extension_alias>.
      */
-    public AxMessage(ParameterList params)
-    {
+    public AxMessage(ParameterList params) {
         _parameters = params;
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Created AXMessage from parameter list:\n" + params);
+        }
     }
 
     /**
      * Gets the Type URI that identifies the Attribute Exchange extension.
      */
-    public String getTypeUri()
-    {
+    public String getTypeUri() {
         return OPENID_NS_AX;
     }
 
     /**
      * Gets ParameterList containing the Attribute Exchange extension-specific
      * parameters.
-     * <p>
+     * <p/>
      * The openid.<extension_alias> prefix is not part of the parameter names,
      * as it is handled internally by the Message class.
-     * <p>
+     * <p/>
      * The openid.ns.<extension_type_uri> parameter is also handled by
      * the Message class.
      *
      * @see Message
      */
-    public ParameterList getParameters()
-    {
+    public ParameterList getParameters() {
         return _parameters;
+    }
+
+    /**
+     * Sets the extension's parameters to the supplied list.
+     * <p/>
+     * The parameter names in the list should not contain the
+     * openid.<extension_alias> prefix.
+     */
+    public void setParameters(ParameterList params) {
+        _parameters = params;
     }
 
     /**
      * Gets a the value of the parameter with the specified name.
      *
-     * @param name      The name of the parameter,
-     *                  without the openid.<extension_alias> prefix.
-     * @return          The parameter value, or null if not found.
+     * @param name The name of the parameter,
+     *             without the openid.<extension_alias> prefix.
+     * @return The parameter value, or null if not found.
      */
-    public String getParameterValue(String name)
-    {
+    public String getParameterValue(String name) {
         return _parameters.getParameterValue(name);
-    }
-
-    /**
-     * Sets the extension's parameters to the supplied list.
-     * <p>
-     * The parameter names in the list should not contain the
-     * openid.<extension_alias> prefix.
-     */
-    public void setParameters(ParameterList params)
-    {
-        _parameters = params;
     }
 
     /**
@@ -118,8 +116,7 @@ public class AxMessage implements MessageExtension, MessageExtensionFactory
      *
      * @return false
      */
-    public boolean providesIdentifier()
-    {
+    public boolean providesIdentifier() {
         return false;
     }
 
@@ -128,8 +125,7 @@ public class AxMessage implements MessageExtension, MessageExtensionFactory
      *
      * @return false
      */
-    public boolean signRequired()
-    {
+    public boolean signRequired() {
         return false;
     }
 
@@ -137,38 +133,34 @@ public class AxMessage implements MessageExtension, MessageExtensionFactory
      * Instantiates the apropriate Attribute Exchange object (fetch / store -
      * request / response) for the supplied parameter list.
      *
-     * @param parameterList         The Attribute Exchange specific parameters
-     *                              (without the openid.<ext_alias> prefix)
-     *                              extracted from the openid message.
-     * @param isRequest             Indicates whether the parameters were
-     *                              extracted from an OpenID request (true),
-     *                              or from an OpenID response.
-     * @return                      MessageExtension implementation for
-     *                              the supplied extension parameters.
-     * @throws MessageException     If a Attribute Exchange object could not be
-     *                              instantiated from the supplied parameter list.
+     * @param parameterList The Attribute Exchange specific parameters
+     *                      (without the openid.<ext_alias> prefix)
+     *                      extracted from the openid message.
+     * @param isRequest     Indicates whether the parameters were
+     *                      extracted from an OpenID request (true),
+     *                      or from an OpenID response.
+     * @return MessageExtension implementation for
+     * the supplied extension parameters.
+     * @throws MessageException If a Attribute Exchange object could not be
+     *                          instantiated from the supplied parameter list.
      */
     public MessageExtension getExtension(
             ParameterList parameterList, boolean isRequest)
-            throws MessageException
-    {
+            throws MessageException {
         String axMode = null;
-        if (parameterList.hasParameter("mode"))
-        {
+        if (parameterList.hasParameter("mode")) {
             axMode = parameterList.getParameterValue("mode");
 
-            if ("fetch_request".equals(axMode))
+            if ("fetch_request".equals(axMode)) {
                 return FetchRequest.createFetchRequest(parameterList);
-
-            else if ("fetch_response".equals(axMode))
+            } else if ("fetch_response".equals(axMode)) {
                 return FetchResponse.createFetchResponse(parameterList);
-
-            else if ("store_request".equals(axMode))
+            } else if ("store_request".equals(axMode)) {
                 return StoreRequest.createStoreRequest(parameterList);
-
-            else if ("store_response_success".equals(axMode) ||
-                    "store_response_failure".equals(axMode))
+            } else if ("store_response_success".equals(axMode) ||
+                       "store_response_failure".equals(axMode)) {
                 return StoreResponse.createStoreResponse(parameterList);
+            }
         }
 
         throw new MessageException("Invalid value for attribute exchange mode: "

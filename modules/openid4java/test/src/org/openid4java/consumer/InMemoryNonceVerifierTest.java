@@ -10,29 +10,24 @@ import junit.framework.TestSuite;
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class InMemoryNonceVerifierTest extends AbstractNonceVerifierTest
-{
-    public InMemoryNonceVerifierTest(String name)
-    {
+public class InMemoryNonceVerifierTest extends AbstractNonceVerifierTest {
+    public InMemoryNonceVerifierTest(String name) {
         super(name);
     }
 
-    public NonceVerifier createVerifier(int maxAge)
-    {
+    public static Test suite() {
+        return new TestSuite(InMemoryNonceVerifierTest.class);
+    }
+
+    public NonceVerifier createVerifier(int maxAge) {
         return new InMemoryNonceVerifier(maxAge);
     }
 
-    public void testNonceCleanup() throws Exception
-    {
+    public void testNonceCleanup() throws Exception {
         super.testNonceCleanup();
 
         InMemoryNonceVerifier inMemoryVerifier = (InMemoryNonceVerifier) _nonceVerifier;
 
         assertEquals(1, inMemoryVerifier.size());
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(InMemoryNonceVerifierTest.class);
     }
 }

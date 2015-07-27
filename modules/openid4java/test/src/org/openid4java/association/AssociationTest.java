@@ -5,26 +5,26 @@
 package org.openid4java.association;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
-
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class AssociationTest extends TestCase
-{
-    public AssociationTest(String name)
-    {
+public class AssociationTest extends TestCase {
+    public AssociationTest(String name) {
         super(name);
     }
 
-    public void testGenerateSha1()
-    {
+    public static Test suite() {
+        return new TestSuite(AssociationTest.class);
+    }
+
+    public void testGenerateSha1() {
         SecretKey secretKey = Association.generateMacSha1Key();
 
         assertNotNull(secretKey);
@@ -36,10 +36,8 @@ public class AssociationTest extends TestCase
         assertEquals(20, secretKeySpec.getEncoded().length);
     }
 
-    public void testGenerateSha256()
-    {
-        if (Association.isHmacSha256Supported())
-        {
+    public void testGenerateSha256() {
+        if (Association.isHmacSha256Supported()) {
             SecretKey secretKey = Association.generateMacSha256Key();
 
             assertNotNull(secretKey);
@@ -52,8 +50,7 @@ public class AssociationTest extends TestCase
         }
     }
 
-    public void testSignSha1() throws AssociationException
-    {
+    public void testSignSha1() throws AssociationException {
         Association association = Association.generate(Association.TYPE_HMAC_SHA1, "test", 100);
 
         String macKeyBase64 = new String(Base64.encodeBase64(association.getMacKey().getEncoded()));
@@ -64,8 +61,7 @@ public class AssociationTest extends TestCase
         assertTrue(association.verifySignature(text, signature));
     }
 
-    public void testSignSha256() throws AssociationException
-    {
+    public void testSignSha256() throws AssociationException {
         Association association = Association.generate(Association.TYPE_HMAC_SHA256, "test", 100);
 
         String macKeyBase64 = new String(Base64.encodeBase64(association.getMacKey().getEncoded()));
@@ -74,10 +70,5 @@ public class AssociationTest extends TestCase
         String signature = association.sign(text);
 
         assertTrue(association.verifySignature(text, signature));
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(AssociationTest.class);
     }
 }

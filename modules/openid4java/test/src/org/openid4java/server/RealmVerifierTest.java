@@ -7,7 +7,6 @@ package org.openid4java.server;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -15,6 +14,7 @@ import org.jdom.input.SAXBuilder;
 import org.openid4java.discovery.yadis.YadisResolver;
 import org.openid4java.util.HttpFetcherFactory;
 
+import javax.servlet.ServletException;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,20 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class RealmVerifierTest extends TestCase
-{
+public class RealmVerifierTest extends TestCase {
     private static final String TEST_DATA_FILE = "RealmTestData.xml";
     private static final Map _resultCodes = new HashMap();
 
-    private String _testDataPath;
-
-    static
-    {
+    static {
         _resultCodes.put("OK", new Integer(RealmVerifier.OK));
         _resultCodes.put("DENIED_REALM", new Integer(RealmVerifier.DENIED_REALM));
         _resultCodes.put("MALFORMED_REALM", new Integer(RealmVerifier.MALFORMED_REALM));
@@ -48,26 +42,29 @@ public class RealmVerifierTest extends TestCase
         _resultCodes.put("DOMAIN_MISMATCH", new Integer(RealmVerifier.DOMAIN_MISMATCH));
     }
 
+    private String _testDataPath;
     private RealmVerifier _realmVerifier;
 
-    public RealmVerifierTest(String name) throws ServletException
-    {
+    public RealmVerifierTest(String name) throws ServletException {
         super(name);
 
         _testDataPath = System.getProperty("TEST_DATA");
 
-        if (_testDataPath == null)
+        if (_testDataPath == null) {
             throw new ServletException("TEST_DATA path not initialized");
+        }
 
     }
 
-    public void setUp() throws Exception
-    {
+    public static Test suite() {
+        return new TestSuite(RealmVerifierTest.class);
+    }
+
+    public void setUp() throws Exception {
         _realmVerifier = new RealmVerifier(false, new YadisResolver(new HttpFetcherFactory()));
     }
 
-    public void testXmlFile() throws IOException, JDOMException
-    {
+    public void testXmlFile() throws IOException, JDOMException {
         InputStream in = new BufferedInputStream(
                 new FileInputStream(_testDataPath + "/server/" + TEST_DATA_FILE));
 
@@ -77,8 +74,7 @@ public class RealmVerifierTest extends TestCase
         Document document = saxBuilder.build(in);
         Element testSuite = document.getRootElement();
         List tests = testSuite.getChildren("test");
-        for (int i = 0; i < tests.size(); i++)
-        {
+        for (int i = 0; i < tests.size(); i++) {
             Element test = (Element) tests.get(i);
 
             String result = test.getAttributeValue("result");
@@ -88,15 +84,11 @@ public class RealmVerifierTest extends TestCase
 
             Integer resultCode = (Integer) _resultCodes.get(result);
 
-            if (message == null)
+            if (message == null) {
                 assertEquals(resultCode.intValue(), _realmVerifier.match(realm, returnTo));
-            else
+            } else {
                 assertEquals(message, resultCode.intValue(), _realmVerifier.match(realm, returnTo));
+            }
         }
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(RealmVerifierTest.class);
     }
 }

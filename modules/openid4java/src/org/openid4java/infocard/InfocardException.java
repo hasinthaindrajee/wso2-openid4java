@@ -9,25 +9,20 @@ import org.openid4java.OpenIDException;
 /**
  * @author Johnny Bufu
  */
-public class InfocardException extends OpenIDException
-{
-    public InfocardException(String message)
-    {
+public class InfocardException extends OpenIDException {
+    public InfocardException(String message) {
         super(message, INFOCARD_ERROR);
     }
 
-    public InfocardException(String message, int code)
-    {
+    public InfocardException(String message, int code) {
         super(message, code);
     }
 
-    public InfocardException(String message, Throwable cause)
-    {
+    public InfocardException(String message, Throwable cause) {
         super(message, INFOCARD_ERROR, cause);
     }
 
-    public InfocardException(Throwable cause)
-    {
+    public InfocardException(Throwable cause) {
         super(INFOCARD_ERROR, cause);
     }
 }

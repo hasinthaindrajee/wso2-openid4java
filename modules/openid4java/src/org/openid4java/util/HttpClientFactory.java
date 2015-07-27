@@ -7,10 +7,10 @@
  */
 package org.openid4java.util;
 
-import javax.net.ssl.SSLContext;
-
 import org.apache.http.HttpHost;
-import org.apache.http.client.*;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.AllClientPNames;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
@@ -24,8 +24,8 @@ import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * This class handles all HTTPClient connections for the
@@ -33,24 +33,21 @@ import org.apache.http.auth.Credentials;
  *
  * @author Kevin
  */
-public class HttpClientFactory
-{
-    private HttpClientFactory() {}
-
+public class HttpClientFactory {
     /**
      * proxy properties for HTTPClient calls
      */
     private static ProxyProperties proxyProperties = null;
-
     private static boolean multiThreadedHttpClient = true;
 
-    public static ProxyProperties getProxyProperties()
-    {
+    private HttpClientFactory() {
+    }
+
+    public static ProxyProperties getProxyProperties() {
         return proxyProperties;
     }
 
-    public static void setProxyProperties(ProxyProperties proxyProperties)
-    {
+    public static void setProxyProperties(ProxyProperties proxyProperties) {
         HttpClientFactory.proxyProperties = proxyProperties;
     }
 
@@ -63,51 +60,45 @@ public class HttpClientFactory
      *
      * @param multiThreadedHttpClient if true, MultiThreadedHttpConnectionManager's are constructed;
      *                                if false - SimpleHttpConnectionManager's.
-     *
      */
     public static void setMultiThreadedHttpClient(boolean multiThreadedHttpClient) {
         HttpClientFactory.multiThreadedHttpClient = multiThreadedHttpClient;
     }
 
     public static HttpClient getInstance(int maxRedirects,
-            Boolean allowCircularRedirects,
-            int connTimeout, int socketTimeout,
-            String cookiePolicy)
-    {
-    	return getInstance(maxRedirects, allowCircularRedirects, connTimeout, socketTimeout, cookiePolicy, null, null);
+                                         Boolean allowCircularRedirects,
+                                         int connTimeout, int socketTimeout,
+                                         String cookiePolicy) {
+        return getInstance(maxRedirects, allowCircularRedirects, connTimeout, socketTimeout, cookiePolicy, null, null);
     }
-    
+
     public static HttpClient getInstance(int maxRedirects,
                                          Boolean allowCircularRedirects,
                                          int connTimeout, int socketTimeout,
                                          String cookiePolicy, SSLContext sslContext,
-                                         X509HostnameVerifier hostnameVerifier)
-    {
+                                         X509HostnameVerifier hostnameVerifier) {
         HttpParams httpParams = new BasicHttpParams();
 
         SchemeRegistry registry = new SchemeRegistry();
 
         registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
         SSLSocketFactory sslSocketFactory;
-        if (null == sslContext)
-        {
-        	sslSocketFactory = SSLSocketFactory.getSocketFactory();
+        if (null == sslContext) {
+            sslSocketFactory = SSLSocketFactory.getSocketFactory();
+        } else {
+            sslSocketFactory = new SSLSocketFactory(sslContext);
         }
-        else
-        {
-        	sslSocketFactory = new SSLSocketFactory(sslContext);
-        }
-        if (null != hostnameVerifier)
-        {
-        	sslSocketFactory.setHostnameVerifier(hostnameVerifier);
+        if (null != hostnameVerifier) {
+            sslSocketFactory.setHostnameVerifier(hostnameVerifier);
         }
         registry.register(new Scheme("https", sslSocketFactory, 443));
-        
+
         ClientConnectionManager connManager;
-        if (multiThreadedHttpClient)
+        if (multiThreadedHttpClient) {
             connManager = new ThreadSafeClientConnManager(httpParams, registry);
-        else
+        } else {
             connManager = new SingleClientConnManager(httpParams, registry);
+        }
 
         DefaultHttpClient client = new DefaultHttpClient(connManager, httpParams);
 
@@ -116,32 +107,28 @@ public class HttpClientFactory
         client.getParams().setParameter(AllClientPNames.ALLOW_CIRCULAR_REDIRECTS,
                                         allowCircularRedirects);
         client.getParams().setParameter(AllClientPNames.SO_TIMEOUT,
-        								   new Integer(socketTimeout));
+                                        new Integer(socketTimeout));
         client.getParams().setParameter(AllClientPNames.CONNECTION_TIMEOUT,
-				   					   new Integer(connTimeout));
+                                        new Integer(connTimeout));
 
-        if (cookiePolicy == null)
-        {
+        if (cookiePolicy == null) {
             client.setCookieStore(null);
-        }
-        else
-        {
+        } else {
             client.getParams().setParameter(AllClientPNames.COOKIE_POLICY,
-                    cookiePolicy);
+                                            cookiePolicy);
         }
-        
 
-        if (proxyProperties != null)
-        {
+
+        if (proxyProperties != null) {
             HttpHost proxy = new HttpHost(
-                    proxyProperties.getProxyHostName(), 
-                    proxyProperties.getProxyPort()); 
+                    proxyProperties.getProxyHostName(),
+                    proxyProperties.getProxyPort());
 
-	        client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+            client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 
             //now set headers for auth
             AuthScope authScope = new AuthScope(AuthScope.ANY_HOST,
-                    AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthScope.ANY_SCHEME);
+                                                AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthScope.ANY_SCHEME);
             Credentials credentials = proxyProperties.getCredentials();
             client.getCredentialsProvider().setCredentials(authScope, credentials);
         }

@@ -9,35 +9,28 @@ import org.openid4java.OpenIDException;
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class ServerException extends OpenIDException
-{
-    public ServerException(String message)
-    {
+public class ServerException extends OpenIDException {
+    public ServerException(String message) {
         super(message, SERVER_ERROR);
     }
 
-    public ServerException(String message, int code)
-    {
+    public ServerException(String message, int code) {
         super(message, code);
     }
 
-    public ServerException(String message, Throwable cause)
-    {
+    public ServerException(String message, Throwable cause) {
         super(message, SERVER_ERROR, cause);
     }
 
-    public ServerException(String message, int code, Throwable cause)
-    {
+    public ServerException(String message, int code, Throwable cause) {
         super(message, code, cause);
     }
 
-    public ServerException(Throwable cause)
-    {
+    public ServerException(Throwable cause) {
         super(cause);
     }
 
-    public ServerException(int code, Throwable cause)
-    {
+    public ServerException(int code, Throwable cause) {
         super(code, cause);
     }
 }

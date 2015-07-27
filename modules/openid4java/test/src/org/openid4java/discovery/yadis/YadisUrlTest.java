@@ -5,23 +5,24 @@
 package org.openid4java.discovery.yadis;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public class YadisUrlTest extends TestCase
-{
-    public YadisUrlTest(String name)
-    {
+public class YadisUrlTest extends TestCase {
+    public YadisUrlTest(String name) {
         super(name);
     }
 
+    public static Test suite() {
+        return new TestSuite(YadisUrlTest.class);
+    }
+
     // test the string constructor
-    public void testUrl() throws YadisException
-    {
-        assertNotNull(new YadisUrl("http://example.com") );
+    public void testUrl() throws YadisException {
+        assertNotNull(new YadisUrl("http://example.com"));
         assertNotNull(new YadisUrl("HTTP://EXAMPLE.COM"));
         assertNotNull(new YadisUrl("http://example.com/a/b?q=1#end"));
         assertNotNull(new YadisUrl("https://example.com"));
@@ -30,44 +31,33 @@ public class YadisUrlTest extends TestCase
         assertNotNull(new YadisUrl("HttpS://Example.Com"));
     }
 
-
-    public void testUrlNoProtocol() throws YadisException
-    {
-        try
-        {
+    public void testUrlNoProtocol() throws YadisException {
+        try {
             new YadisUrl("example.com");
             fail("A YadisException should be raised " +
-                    "if the protocol was not specified");
+                 "if the protocol was not specified");
         } catch (YadisException expected) {
             assertTrue(true);
         }
-        try
-        {
+        try {
             new YadisUrl("example.com/a/b?q=1#end");
             fail("A YadisException should be raised " +
-                    "if the protocol was not specified");
+                 "if the protocol was not specified");
         } catch (YadisException expected) {
             assertTrue(true);
         }
     }
 
-    public void testUrlProtocol() throws YadisException
-    {
-        try
-        {
+    public void testUrlProtocol() throws YadisException {
+        try {
             new YadisUrl("ftp://example.com");
             new YadisUrl("nntp://example.com");
             new YadisUrl("file:///tmp/somefile");
             new YadisUrl("smth://example.com/a/b?q=1#end");
             fail("A YadisException should be raised " +
-                    "if the protocol is not HTTP or HTTPS");
+                 "if the protocol is not HTTP or HTTPS");
         } catch (YadisException expected) {
             assertTrue(true);
         }
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(YadisUrlTest.class);
     }
 }

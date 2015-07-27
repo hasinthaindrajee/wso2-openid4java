@@ -12,46 +12,44 @@ import java.io.Serializable;
  * @author Marius Scurtescu, Johnny Bufu
  * @see ParameterList
  */
-public class Parameter implements Comparable, Serializable
-{
+public class Parameter implements Comparable, Serializable {
     private String _key;
     private String _value;
 
-    public Parameter(String key, String value)
-    {
-        _key   = key;
+    public Parameter(String key, String value) {
+        _key = key;
         _value = value;
     }
 
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return !((_key != null && _key.indexOf(':') > -1) ||
-                (_key != null && _key.indexOf('\n') > -1) ||
-                (_value != null && _value.indexOf('\n') > -1));
+                 (_key != null && _key.indexOf('\n') > -1) ||
+                 (_value != null && _value.indexOf('\n') > -1));
 
         //throw new IllegalArgumentException(
         //        "Invalid characters (colon or newline) found in the " +
         //        "key and/or value: \nkey=" + _key + "\nvalue=" + _value );
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
+        }
 
-        if (obj == null || getClass() != obj.getClass())
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
+        }
 
         final Parameter that = (Parameter) obj;
 
-        if (this._key == null ? that._key != null : !this._key.equals(that._key))
+        if (this._key == null ? that._key != null : !this._key.equals(that._key)) {
             return false;
+        }
 
         return (this._value == null ? that._value == null : this._value.equals(that._value));
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash;
 
         hash = (_key != null ? _key.hashCode() : 0);
@@ -60,18 +58,15 @@ public class Parameter implements Comparable, Serializable
         return hash;
     }
 
-    public String getKey()
-    {
+    public String getKey() {
         return _key;
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return _value;
     }
 
-    public int compareTo(Object obj)
-    {
+    public int compareTo(Object obj) {
         Parameter that = (Parameter) obj;
 
         int keyComp = this._key.compareTo(that._key);
@@ -83,8 +78,7 @@ public class Parameter implements Comparable, Serializable
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         return _key + ":" + _value;
     }
 }

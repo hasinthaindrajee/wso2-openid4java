@@ -1,27 +1,34 @@
 package org.openid4java.discovery.xrds;
 
-import org.openid4java.discovery.Discovery;
-import org.openid4java.discovery.DiscoveryException;
-import org.openid4java.OpenIDException;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.OpenIDException;
+import org.openid4java.discovery.Discovery;
+import org.openid4java.discovery.DiscoveryException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.*;
-import java.util.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author jbufu
  */
-public class XrdsParserImpl implements XrdsParser
-{
+public class XrdsParserImpl implements XrdsParser {
     private static final Log _log = LogFactory.getLog(XrdsParserImpl.class);
     private static final boolean DEBUG = _log.isDebugEnabled();
 
@@ -42,17 +49,18 @@ public class XrdsParserImpl implements XrdsParser
     private static final String OPENID_ELEM_DELEGATE = "Delegate";
 
 
-    public List parseXrds(String input, Set targetTypes) throws DiscoveryException
-    {
-        if (DEBUG)
+    public List parseXrds(String input, Set targetTypes) throws DiscoveryException {
+        if (DEBUG) {
             _log.debug("Parsing XRDS input for service types: " + targetTypes.toString());
+        }
 
         Document document = parseXmlInput(input);
 
         NodeList XRDs = document.getElementsByTagNameNS(XRD_NS, XRD_ELEM_XRD);
         Node lastXRD;
-        if (XRDs.getLength() < 1 || (lastXRD = XRDs.item(XRDs.getLength() - 1)) == null)
+        if (XRDs.getLength() < 1 || (lastXRD = XRDs.item(XRDs.getLength() - 1)) == null) {
             throw new DiscoveryException("No XRD elements found.");
+        }
 
         // get the canonical ID, if any (needed for XRIs)
         String canonicalId = null;
@@ -60,11 +68,14 @@ public class XrdsParserImpl implements XrdsParser
         NodeList canonicalIDs = document.getElementsByTagNameNS(XRD_NS, XRD_ELEM_CANONICALID);
         for (int i = 0; i < canonicalIDs.getLength(); i++) {
             canonicalIdNode = canonicalIDs.item(i);
-            if (canonicalIdNode.getParentNode() != lastXRD) continue;
-            if (canonicalId != null)
+            if (canonicalIdNode.getParentNode() != lastXRD) {
+                continue;
+            }
+            if (canonicalId != null) {
                 throw new DiscoveryException("More than one Canonical ID found.");
+            }
             canonicalId = canonicalIdNode.getFirstChild() != null && canonicalIdNode.getFirstChild().getNodeType() == Node.TEXT_NODE ?
-                canonicalIdNode.getFirstChild().getNodeValue() : null;
+                          canonicalIdNode.getFirstChild().getNodeValue() : null;
         }
 
         // extract the services that match the specified target types
@@ -75,19 +86,25 @@ public class XrdsParserImpl implements XrdsParser
         for (int i = 0; i < types.getLength(); i++) {
             typeNode = types.item(i);
             String type = typeNode != null && typeNode.getFirstChild() != null && typeNode.getFirstChild().getNodeType() == Node.TEXT_NODE ?
-                typeNode.getFirstChild().getNodeValue() : null;
-            if (type == null) continue;
+                          typeNode.getFirstChild().getNodeValue() : null;
+            if (type == null) {
+                continue;
+            }
 
             serviceNode = typeNode.getParentNode();
-            if (serviceNode.getParentNode() != lastXRD) continue;
+            if (serviceNode.getParentNode() != lastXRD) {
+                continue;
+            }
 
-            if (targetTypes.contains(type))
+            if (targetTypes.contains(type)) {
                 selectedServices.add(serviceNode);
+            }
             addServiceType(serviceTypes, serviceNode, type);
         }
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Found " + serviceTypes.size() + " services for the requested types.");
+        }
 
         // extract local IDs
         Map serviceLocalIDs = extractElementsByParent(XRD_NS, XRD_ELEM_LOCALID, selectedServices, document);
@@ -99,10 +116,12 @@ public class XrdsParserImpl implements XrdsParser
         Node uriNode;
         for (int i = 0; i < uris.getLength(); i++) {
             uriNode = uris.item(i);
-            if (uriNode == null || !selectedServices.contains(uriNode.getParentNode())) continue;
+            if (uriNode == null || !selectedServices.contains(uriNode.getParentNode())) {
+                continue;
+            }
 
             String uri = uriNode.getFirstChild() != null && uriNode.getFirstChild().getNodeType() == Node.TEXT_NODE ?
-                uriNode.getFirstChild().getNodeValue() : null;
+                         uriNode.getFirstChild().getNodeValue() : null;
 
             serviceNode = uriNode.getParentNode();
             Set typeSet = (Set) serviceTypes.get(serviceNode);
@@ -111,8 +130,9 @@ public class XrdsParserImpl implements XrdsParser
             String delegate = (String) serviceDelegates.get(serviceNode);
 
             XrdsServiceEndpoint endpoint = new XrdsServiceEndpoint(uri, typeSet, getPriority(serviceNode), getPriority(uriNode), localId, delegate, canonicalId);
-            if (DEBUG)
+            if (DEBUG) {
                 _log.debug("Discovered endpoint: \n" + endpoint);
+            }
             result.add(endpoint);
         }
 
@@ -120,55 +140,55 @@ public class XrdsParserImpl implements XrdsParser
         return result;
     }
 
-    private Map extractElementsByParent(String ns, String elem, Set parents, Document document)
-    {
+    private Map extractElementsByParent(String ns, String elem, Set parents, Document document) {
         Map result = new HashMap();
         NodeList nodes = document.getElementsByTagNameNS(ns, elem);
         Node node;
         for (int i = 0; i < nodes.getLength(); i++) {
             node = nodes.item(i);
-            if (node == null || !parents.contains(node.getParentNode())) continue;
+            if (node == null || !parents.contains(node.getParentNode())) {
+                continue;
+            }
 
             String localId = node.getFirstChild() != null && node.getFirstChild().getNodeType() == Node.TEXT_NODE ?
-                node.getFirstChild().getNodeValue() : null;
+                             node.getFirstChild().getNodeValue() : null;
 
             result.put(node.getParentNode(), localId);
         }
         return result;
     }
 
-    private int getPriority(Node node)
-    {
-        if (node.hasAttributes())
-        {
+    private int getPriority(Node node) {
+        if (node.hasAttributes()) {
             Node priority = node.getAttributes().getNamedItem(XRD_ATTR_PRIORITY);
-            if (priority != null)
+            if (priority != null) {
                 return Integer.parseInt(priority.getNodeValue());
-            else
+            } else {
                 return XrdsServiceEndpoint.LOWEST_PRIORITY;
+            }
         }
 
         return 0;
     }
 
-    private Document parseXmlInput(String input) throws DiscoveryException
-    {
-        if (input == null)
+    private Document parseXmlInput(String input) throws DiscoveryException {
+        if (input == null) {
             throw new DiscoveryException("Cannot read XML message",
-                OpenIDException.XRDS_DOWNLOAD_ERROR);
+                                         OpenIDException.XRDS_DOWNLOAD_ERROR);
+        }
 
-        if (DEBUG)
+        if (DEBUG) {
             _log.debug("Parsing XRDS input: " + input);
+        }
 
-        try
-        {
+        try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             dbf.setValidating(true);
             dbf.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
-            dbf.setAttribute(JAXP_SCHEMA_SOURCE, new Object[] {
-                Discovery.class.getResourceAsStream(XRD_SCHEMA),
-                Discovery.class.getResourceAsStream(XRDS_SCHEMA),
+            dbf.setAttribute(JAXP_SCHEMA_SOURCE, new Object[]{
+                    Discovery.class.getResourceAsStream(XRD_SCHEMA),
+                    Discovery.class.getResourceAsStream(XRDS_SCHEMA),
             });
             DocumentBuilder builder = dbf.newDocumentBuilder();
             builder.setErrorHandler(new ErrorHandler() {
@@ -186,29 +206,21 @@ public class XrdsParserImpl implements XrdsParser
             });
 
             return builder.parse(new ByteArrayInputStream(input.getBytes()));
-        }
-        catch (ParserConfigurationException e)
-        {
+        } catch (ParserConfigurationException e) {
             throw new DiscoveryException("Parser configuration error",
-                    OpenIDException.XRDS_PARSING_ERROR, e);
-        }
-        catch (SAXException e)
-        {
+                                         OpenIDException.XRDS_PARSING_ERROR, e);
+        } catch (SAXException e) {
             throw new DiscoveryException("Error parsing XML document",
-                    OpenIDException.XRDS_PARSING_ERROR, e);
-        }
-        catch (IOException e)
-        {
+                                         OpenIDException.XRDS_PARSING_ERROR, e);
+        } catch (IOException e) {
             throw new DiscoveryException("Error reading XRDS document",
-                    OpenIDException.XRDS_DOWNLOAD_ERROR, e);
+                                         OpenIDException.XRDS_DOWNLOAD_ERROR, e);
         }
     }
 
-    private void addServiceType(Map serviceTypes, Node serviceNode, String type)
-    {
+    private void addServiceType(Map serviceTypes, Node serviceNode, String type) {
         Set types = (Set) serviceTypes.get(serviceNode);
-        if (types == null)
-        {
+        if (types == null) {
             types = new HashSet();
             serviceTypes.put(serviceNode, types);
         }

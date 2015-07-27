@@ -9,7 +9,6 @@ import java.io.Serializable;
 /**
  * @author Marius Scurtescu, Johnny Bufu
  */
-public interface Identifier extends Serializable
-{
+public interface Identifier extends Serializable {
     public String getIdentifier();
 }

@@ -1,12 +1,11 @@
 package org.openid4java.discovery.xrds;
 
 import java.util.Set;
-import java.util.Arrays;
 
 /**
  * Encapsulates the (OpenID-related) information extracted in
  * service elements discovered through Yadis.
- *
+ * <p/>
  * Note: this class has a natural ordering that is inconsistent with equals.
  * Only the URI priority and Service priority fields are used for comparison.
  *
@@ -14,18 +13,18 @@ import java.util.Arrays;
  */
 public class XrdsServiceEndpoint implements Comparable {
 
+    public static final int LOWEST_PRIORITY = -1;
     private int servicePriority;
     private int uriPriority;
     private Set types;
     private String uri;
     private String localId;
     private String delegate;
-    public static final int LOWEST_PRIORITY = -1;
     private String canonicalId;
 
     public XrdsServiceEndpoint(String uri, Set types,
-                        int servicePriority, int uriPriority, String localId, String delegate, String canonicalId)
-    {
+                               int servicePriority, int uriPriority, String localId, String delegate,
+                               String canonicalId) {
         this.servicePriority = servicePriority;
         this.uriPriority = uriPriority;
         this.types = types;
@@ -59,8 +58,7 @@ public class XrdsServiceEndpoint implements Comparable {
         this.types = types;
     }
 
-    public boolean matchesType(String type)
-    {
+    public boolean matchesType(String type) {
         return types != null && types.contains(type);
     }
 
@@ -99,19 +97,31 @@ public class XrdsServiceEndpoint implements Comparable {
     public int compareTo(Object o) {
         XrdsServiceEndpoint other = (XrdsServiceEndpoint) o;
 
-        if (servicePriority == LOWEST_PRIORITY && other.servicePriority != LOWEST_PRIORITY)
+        if (servicePriority == LOWEST_PRIORITY && other.servicePriority != LOWEST_PRIORITY) {
             return 1;
-        if (other.servicePriority == LOWEST_PRIORITY && servicePriority != LOWEST_PRIORITY)
+        }
+        if (other.servicePriority == LOWEST_PRIORITY && servicePriority != LOWEST_PRIORITY) {
             return -1;
-        if (servicePriority < other.servicePriority) return -1;
-        if (servicePriority > other.servicePriority) return 1;
+        }
+        if (servicePriority < other.servicePriority) {
+            return -1;
+        }
+        if (servicePriority > other.servicePriority) {
+            return 1;
+        }
 
-        if (uriPriority == LOWEST_PRIORITY && other.uriPriority != LOWEST_PRIORITY)
+        if (uriPriority == LOWEST_PRIORITY && other.uriPriority != LOWEST_PRIORITY) {
             return 1;
-        if (other.uriPriority == LOWEST_PRIORITY && uriPriority != LOWEST_PRIORITY)
+        }
+        if (other.uriPriority == LOWEST_PRIORITY && uriPriority != LOWEST_PRIORITY) {
             return -1;
-        if (uriPriority < other.uriPriority) return -1;
-        if (uriPriority > other.uriPriority) return 1;
+        }
+        if (uriPriority < other.uriPriority) {
+            return -1;
+        }
+        if (uriPriority > other.uriPriority) {
+            return 1;
+        }
 
         // XRI spec says the consumer should pick at random here
         return 0;
