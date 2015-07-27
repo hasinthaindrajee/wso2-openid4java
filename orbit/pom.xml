@@ -18,14 +18,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.openid4java</groupId>
-        <artifactId>wso2.openid4java-nodeps</artifactId>
+        <groupId>org.wso2.org.openid4java</groupId>
+        <artifactId>openid4java-nodeps</artifactId>
         <version>0.9.6-wso2v4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openid4java.wso2</groupId>
+    <groupId>org.wso2.orbit.org.openid4java</groupId>
     <artifactId>openid4java-nodeps</artifactId>
     <version>0.9.6.wso2v4-SNAPSHOT</version>
     <packaging>bundle</packaging>
