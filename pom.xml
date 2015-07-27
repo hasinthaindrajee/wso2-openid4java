@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -27,7 +26,7 @@
     <groupId>org.openid4java</groupId>
     <artifactId>wso2.openid4java-nodeps</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.6-wso2v4-SNAPSHOT</version>
+    <version>0.9.6-wso2v4</version>
     <name>OpenID4Java Parent</name>
     <description>
         OpenID4Java Parent.
@@ -37,7 +36,7 @@
         <url>https://github.com/wso2/wso2-openid4java.git</url>
         <developerConnection>scm:git:https://github.com/wso2/wso2-openid4java.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/wso2-openid4java.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.9.6-wso2v4</tag>
     </scm>
 
     <modules>
@@ -262,7 +261,7 @@
     <properties>
         <nekohtml.version>1.9.10</nekohtml.version>
         <openxri.version>1.2.0</openxri.version>
-        <openid4java.version>0.9.6-wso2v4-SNAPSHOT</openid4java.version>
+        <openid4java.version>0.9.6-wso2v4</openid4java.version>
         <orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
         <encoding>UTF-8</encoding>
         <jetty.version>6.0.2</jetty.version>
