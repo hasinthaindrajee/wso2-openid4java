@@ -14,13 +14,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.openid4java</groupId>
         <artifactId>wso2.openid4java-nodeps</artifactId>
         <version>0.9.6-wso2v4-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -38,7 +39,6 @@
         <dependency>
             <groupId>org.openid4java</groupId>
             <artifactId>openid4java-nodeps</artifactId>
-            <version>${openid4java.version}</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -54,7 +54,6 @@
         <dependency>
             <groupId>org.openxri</groupId>
             <artifactId>openxri-client</artifactId>
-            <version>${openxri.version}</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -90,7 +89,6 @@
         <dependency>
             <groupId>org.openxri</groupId>
             <artifactId>openxri-syntax</artifactId>
-            <version>${openxri.version}</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -112,11 +110,10 @@
             </exclusions>
         </dependency>
         <dependency>
-           <groupId>net.sourceforge.nekohtml</groupId>
-           <artifactId>nekohtml</artifactId>
-           <version>${nekohtml.version}</version>
-           <optional>true</optional>
-           <exclusions>
+            <groupId>net.sourceforge.nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <optional>true</optional>
+            <exclusions>
                 <exclusion>
                     <groupId>xerces</groupId>
                     <artifactId>xercesImpl</artifactId>
@@ -138,11 +135,12 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>!org.eclipse.higgins.*,</Import-Package>
                         <Export-Package>
-	                      org.openid4java.*;version=${orbit.version.openid4java},				    
-		              org.htmlparser.*;version=${htmlparser.version},
-		              org.openxri.*;version=${openxri.version},
+                            org.openid4java.*;version=${orbit.version.openid4java},
+                            org.htmlparser.*;version=${htmlparser.version},
+                            org.openxri.*;version=${openxri.version},
                         </Export-Package>
-			<Embed-Dependency>nekohtml,openxri-syntax,openxri-client;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Embed-Dependency>nekohtml,openxri-syntax,openxri-client;scope=compile|runtime;inline=false
+                        </Embed-Dependency>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
@@ -161,13 +159,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <nekohtml.version>1.9.7</nekohtml.version>
-        <openxri.version>1.2.0</openxri.version>
-	<!-- openid4java -->
-	<orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
-    </properties>
-
 </project>
 
