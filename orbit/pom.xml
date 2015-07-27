@@ -134,7 +134,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>!org.eclipse.higgins.*,</Import-Package>
                         <Export-Package>
-                            org.openid4java.*;version=${orbit.version.openid4java},
+                            org.openid4java.*;version=${exp.pkg.version.openid4java},
                             org.htmlparser.*;version=${htmlparser.version},
                             org.openxri.*;version=${openxri.version},
                         </Export-Package>

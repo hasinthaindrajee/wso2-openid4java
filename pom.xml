@@ -262,7 +262,7 @@
         <nekohtml.version>1.9.10</nekohtml.version>
         <openxri.version>1.2.0</openxri.version>
         <openid4java.wso2.version>0.9.6-wso2v4-SNAPSHOT</openid4java.wso2.version>
-        <orbit.version.openid4java>0.9.6.wso2v4-SNAPSHOT</orbit.version.openid4java>
+        <exp.pkg.version.openid4java>0.9.6.wso2v4</exp.pkg.version.openid4java>
         <encoding>UTF-8</encoding>
         <jetty.version>6.0.2</jetty.version>
         <test.data.src>${test.data}</test.data.src>
