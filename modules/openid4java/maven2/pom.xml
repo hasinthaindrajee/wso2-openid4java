@@ -3,7 +3,7 @@
                       http://maven.apache.org/maven-v4_0_0.xsd"
         >
     <parent>
-        <groupId>org.wso2.org.openid4java</groupId>
+        <groupId>org.openid4java</groupId>
         <artifactId>openid4java-nodeps</artifactId>
         <version>0.9.6-wso2v1</version>
     </parent>

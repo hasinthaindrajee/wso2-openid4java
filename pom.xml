@@ -26,7 +26,7 @@
     <groupId>org.openid4java</groupId>
     <artifactId>openid4java-nodeps-parent</artifactId>
     <packaging>pom</packaging>
-    <version>${openid4java.wso2.version}</version>
+    <version>0.9.6-wso2v5-SNAPSHOT</version>
     <name>OpenID4Java Parent</name>
     <description>OpenID4Java Parent.</description>
 
@@ -233,7 +233,7 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.wso2.org.openid4java</groupId>
+                <groupId>org.openid4java</groupId>
                 <artifactId>openid4java-nodeps</artifactId>
                 <version>${openid4java.wso2.version}</version>
                 <optional>true</optional>
