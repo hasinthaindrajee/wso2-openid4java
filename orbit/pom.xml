@@ -24,7 +24,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.orbit.org.openid4java</groupId>
+    <groupId>org.openid4java.wso2</groupId>
     <artifactId>openid4java-nodeps</artifactId>
     <version>0.9.6.wso2v5-SNAPSHOT</version>
     <packaging>bundle</packaging>

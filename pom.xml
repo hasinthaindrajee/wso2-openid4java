@@ -23,14 +23,12 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.org.openid4java</groupId>
+    <groupId>org.openid4java</groupId>
     <artifactId>openid4java-nodeps-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.9.6-wso2v5-SNAPSHOT</version>
     <name>OpenID4Java Parent</name>
-    <description>
-        OpenID4Java Parent.
-    </description>
+    <description>OpenID4Java Parent.</description>
 
     <scm>
         <url>https://github.com/wso2/wso2-openid4java.git</url>
