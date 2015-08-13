@@ -19,14 +19,14 @@
     <parent>
         <groupId>org.openid4java</groupId>
         <artifactId>openid4java-nodeps-parent</artifactId>
-        <version>0.9.6-wso2v5-SNAPSHOT</version>
+        <version>0.9.6-wso2v5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openid4java.wso2</groupId>
     <artifactId>openid4java-nodeps</artifactId>
-    <version>0.9.6.wso2v5-SNAPSHOT</version>
+    <version>0.9.6.wso2v5</version>
     <packaging>bundle</packaging>
     <name>Orbit - OpenID4Java</name>
     <description>
