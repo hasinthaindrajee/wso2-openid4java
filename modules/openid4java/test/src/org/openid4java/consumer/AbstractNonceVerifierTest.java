@@ -63,7 +63,7 @@ public abstract class AbstractNonceVerifierTest extends TestCase {
 
     public void testNonceCleanup() throws Exception {
         NonceGenerator nonceGenerator = new IncrementalNonceGenerator();
-        _nonceVerifier = createVerifier(1);
+        _nonceVerifier = createVerifier(2);
 
         assertEquals(NonceVerifier.OK, _nonceVerifier.seen("http://example.com", nonceGenerator.next()));
         assertEquals(NonceVerifier.OK, _nonceVerifier.seen("http://example.com", nonceGenerator.next()));
@@ -75,7 +75,7 @@ public abstract class AbstractNonceVerifierTest extends TestCase {
         assertEquals(NonceVerifier.OK, _nonceVerifier.seen("http://example.net", nonceGenerator.next()));
         assertEquals(NonceVerifier.OK, _nonceVerifier.seen("http://example.net", nonceGenerator.next()));
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         assertEquals(NonceVerifier.OK, _nonceVerifier.seen("http://example.org", nonceGenerator.next()));
     }
