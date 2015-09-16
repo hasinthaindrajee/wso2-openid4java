@@ -38,7 +38,7 @@ public class ConsumerAndProviderTest extends TestCase {
 
     public ConsumerAndProviderTest(final String testName) throws Exception {
         super(testName);
-        int servletPort = Integer.parseInt(System.getProperty("SERVLET_PORT", "8989"));
+        int servletPort = Integer.parseInt("9399");
         _server = new Server(servletPort);
 
         Context context = new Context(_server, "/", Context.SESSIONS);
